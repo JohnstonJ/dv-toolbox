@@ -1,0 +1,19 @@
+* text=auto eol=lf
+
+*.sh text
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text
+
+*.md text diff=markdown
+*.txt text
+
+*.dv binary
+*.jpg binary
+*.png binary
+
+*.go text diff=golang
+*.py text diff=python
+*.toml text
+*.yaml text
+*.yml text
