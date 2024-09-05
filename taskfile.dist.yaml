@@ -189,22 +189,17 @@ tasks:
           FILE: ".vscode/settings.json"
           CONTENT: |-
             {
-                "[go]": {
-                    "editor.rulers": [
-                        100
-                    ]
+                "[bat]": {
+                    "files.eol": "\r\n",
                 },
-                "[powershell]": {
-                    "editor.rulers": [
-                        100
-                    ]
+                "[markdown]": {
+                    "editor.rulers": []
                 },
-                "[yaml]": {
-                    "editor.rulers": [
-                        100
-                    ]
-                },
+                "editor.rulers": [
+                    100
+                ],
                 "files.autoSave": "afterDelay",
+                "files.eol": "\n",
                 "go.alternateTools": {
                     "go": {{.GOTOOL | toJson}}
                 },
