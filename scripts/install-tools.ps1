@@ -1,4 +1,5 @@
-# This script downloads Task to a project-specific .tools/ directory, and then runs it.
+# This script downloads Task to a project-specific tools directory that is a sibling to the repo,
+# and then runs it.
 
 param (
     [string]$Task
@@ -28,7 +29,9 @@ if (!$IsWindows) {
 
 # Create tools directory
 $Repo = Split-Path $PSScriptRoot -Parent -Resolve
-$ToolsDir = New-Item -Path $Repo -Name ".tools" -ItemType Directory -Force
+$ToolsDirName = ($Repo | Split-Path -Leaf) + "-tools"
+$ToolsDir = Join-Path $Repo ".." $ToolsDirName
+$ToolsDir = New-Item -Path $ToolsDir -ItemType Directory -Force
 
 # Download and set up Task
 
@@ -51,7 +54,7 @@ Expand-Archive $TaskZIP $TaskDir
 # Run default or specified task
 Set-Location $Repo
 if ($Task) {
-	& (Join-Path ".tools" "task" "task") $Task
+	& (Join-Path $ToolsDir "task" "task") $Task
 } else {
-	& (Join-Path ".tools" "task" "task")
+	& (Join-Path $ToolsDir "task" "task") toolchain
 }

@@ -116,15 +116,15 @@ tasks:
         vars:
           ARCHIVE_FILE: "{{.ARCHIVE_FILE}}"
           ARCHIVE_SUBDIR: "golangci-lint-{{.VERSION}}-windows-{{.GO_ARCH}}"
-          DESTINATION_PARENT: "{{.DESTINATION_PARENT}}"
+          TOOLS_DIR: "{{.TOOLS_DIR}}"
           GOPATH_BIN_DIR: "{{.GOPATH_BIN_DIR}}"
 
   extract-golangci-lint:
     run: when_changed
     requires:
-      vars: [ARCHIVE_FILE, ARCHIVE_SUBDIR, DESTINATION_PARENT, GOPATH_BIN_DIR]
+      vars: [ARCHIVE_FILE, ARCHIVE_SUBDIR, TOOLS_DIR, GOPATH_BIN_DIR]
     vars:
-      EXTRACT_TMP: "{{.DESTINATION_PARENT}}/golangci_lint_extract.tmp"
+      EXTRACT_TMP: "{{.TOOLS_DIR}}/golangci_lint_extract.tmp"
       EXPAND_COMMAND: >-
         Expand-Archive '{{fromSlash .ARCHIVE_FILE | replace "'" "''"}}'
         '{{fromSlash .EXTRACT_TMP | replace "'" "''"}}'

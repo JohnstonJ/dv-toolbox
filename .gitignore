@@ -27,6 +27,4 @@ go.work.sum
 # Taskfile
 .task
 
-# Portable development in this repo
-.tools
 .vscode

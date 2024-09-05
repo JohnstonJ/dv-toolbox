@@ -10,8 +10,16 @@ vars:
   GO_VERSION: "1.23.0"
   GOLANGCI_LINT_VERSION: "1.60.3"
 
-  VSCODE_PATH: >-
-    {{if eq OS "windows"}}.tools\\vscode\\bin\\code.cmd{{else}}.tools/vscode/bin/code{{end}}
+  TOOLS_DIR_NAME: "{{osBase .ROOT_DIR}}-tools"
+  TOOLS_DIR: '{{joinPath .ROOT_DIR ".." .TOOLS_DIR_NAME | clean}}'
+  GOPATH: '{{joinPath .TOOLS_DIR "gopath"}}'
+  GOPATH_BIN_DIR: '{{joinPath .TOOLS_DIR "gopath" "bin"}}'
+  GOROOT_BIN_DIR: '{{joinPath .TOOLS_DIR "goroot" "bin"}}'
+  VSCODE_PATH: '{{joinPath .TOOLS_DIR "vscode" "bin" "code"}}{{if eq OS "windows"}}.cmd{{end}}'
+  PATH_VAR_SEP: '{{if eq OS "windows"}};{{else}}:{{end}}'
+  # NOTE: Ideally we could specify environment variables like GOPATH and PATH in the "env" section,
+  # but that feature is severely busted: https://github.com/go-task/task/issues/1038
+  PATH: '{{.GOPATH_BIN_DIR}}{{.PATH_VAR_SEP}}{{.GOROOT_BIN_DIR}}{{.PATH_VAR_SEP}}{{env "PATH"}}'
 
 includes:
   util:
@@ -21,9 +29,9 @@ includes:
 tasks:
   default:
     deps:
-      - toolchain
+      - verify
 
-  # Top-level meta targets
+  # Top-level meta tasks
 
   # All tools and dependencies needed to build this project.
   toolchain:
@@ -31,15 +39,32 @@ tasks:
     deps:
       - download-go
       - create-gopath
-      - download-golangci-lint
+      - download-go-tools
       - environment-scripts
 
-  # Create the ".tools" directory if it does not already exist
+  verify:
+    run: once
+    deps:
+      - toolchain
+      - lint
+
+  # Verification tasks
+  lint:
+    run: once
+    deps:
+      - toolchain
+    cmds:
+      - |
+        export GOPATH={{.GOPATH | shellQuote}}
+        export PATH={{.PATH | shellQuote}}
+        golangci-lint run
+
+  # Create the "-tools" directory if it does not already exist
   create-tools:
     run: once
     cmds:
       - task: util:mkdir
-        vars: { DIR: ".tools" }
+        vars: { DIR: "{{.TOOLS_DIR}}" }
 
   # Download Go and create GOPATH
   download-go:
@@ -50,26 +75,31 @@ tasks:
       - task: util:download-go
         vars:
           VERSION: "{{.GO_VERSION}}"
-          DESTINATION_PARENT: ".tools"
+          DESTINATION_PARENT: "{{.TOOLS_DIR}}"
   create-gopath:
     run: once
     deps:
       - create-tools
     cmds:
       - task: util:mkdir
-        vars: { DIR: ".tools/gopath/bin" }
+        vars: { DIR: "{{.GOPATH_BIN_DIR}}" }
 
-  # Download golangci-lint
-  download-golangci-lint:
+  # Download various go tools
+  download-go-tools:
     run: once
     deps:
       - create-gopath
+      - download-go
     cmds:
       - task: util:download-golangci-lint
         vars:
           VERSION: "{{.GOLANGCI_LINT_VERSION}}"
-          TOOLS_DIR: ".tools"
-          GOPATH_BIN_DIR: ".tools/gopath/bin"
+          TOOLS_DIR: "{{.TOOLS_DIR}}"
+          GOPATH_BIN_DIR: "{{.GOPATH_BIN_DIR}}"
+      - |
+        export GOPATH={{.GOPATH | shellQuote}}
+        export PATH={{.PATH | shellQuote}}
+        go install github.com/daixiang0/gci@v0.13.5
 
   # Create convenience scripts for setting environment variables
   environment-scripts:
@@ -78,37 +108,35 @@ tasks:
       - download-go
       - create-gopath
     vars:
-      GOPATH: '{{joinPath .ROOT_DIR ".tools" "gopath"}}'
-      GOPATHBIN: '{{joinPath .ROOT_DIR ".tools" "gopath" "bin"}}'
-      GOTOOLBIN: '{{joinPath .ROOT_DIR ".tools" "goroot" "bin"}}'
-      TASKPATH: '{{joinPath .ROOT_DIR ".tools" "task"}}'
-      SHPATH: "{{.GOTOOLBIN | toSlash}}:{{.GOPATHBIN | toSlash}}:{{.TASKPATH | toSlash}}:$PATH"
+      TASKPATH: '{{joinPath .TOOLS_DIR "task"}}'
+      SHPATH: >-
+        {{.GOROOT_BIN_DIR | toSlash}}:{{.GOPATH_BIN_DIR | toSlash}}:{{.TASKPATH | toSlash}}:$PATH
     cmds:
       - task: util:write-file
         vars:
-          FILE: ".tools/setvars.cmd"
+          FILE: '{{joinPath .TOOLS_DIR "setvars.cmd"}}'
           CONTENT: |-
             @echo off
             set GOPATH={{.GOPATH | fromSlash}}
-            set PATH={{.GOTOOLBIN | fromSlash}};{{.GOPATHBIN | fromSlash}};^
+            set PATH={{.GOROOT_BIN_DIR | fromSlash}};{{.GOPATH_BIN_DIR | fromSlash}};^
             {{.TASKPATH | fromSlash}};%PATH%
           NO_OVERWRITE: false
       - task: util:write-file
         vars:
-          FILE: ".tools/setvars.ps1"
+          FILE: '{{joinPath .TOOLS_DIR "setvars.ps1"}}'
           CONTENT: |-
             $env:GOPATH = '{{.GOPATH | fromSlash | replace "'" "''"}}'
-            $env:PATH = ('{{.GOTOOLBIN | fromSlash | replace "'" "''"}};' + `
-                '{{.GOPATHBIN | fromSlash | replace "'" "''"}};' + `
+            $env:PATH = ('{{.GOROOT_BIN_DIR | fromSlash | replace "'" "''"}};' + `
+                '{{.GOPATH_BIN_DIR | fromSlash | replace "'" "''"}};' + `
                 '{{.TASKPATH | fromSlash | replace "'" "''"}};' + $env:PATH)
           NO_OVERWRITE: false
       - task: util:write-file
         vars:
-          FILE: ".tools/setvars.sh"
+          FILE: '{{joinPath .TOOLS_DIR "setvars.sh"}}'
           CONTENT: |-
             export GOPATH={{.GOPATH | toSlash | shellQuote}}
-            export PATH={{.GOTOOLBIN | toSlash | shellQuote}}:\
-            {{.GOPATHBIN | toSlash | shellQuote}}:{{.TASKPATH | toSlash | shellQuote}}:"$PATH"
+            export PATH={{.GOROOT_BIN_DIR | toSlash | shellQuote}}:\
+            {{.GOPATH_BIN_DIR | toSlash | shellQuote}}:{{.TASKPATH | toSlash | shellQuote}}:"$PATH"
           NO_OVERWRITE: false
 
   # Download and configure Visual Studio Code
@@ -119,7 +147,7 @@ tasks:
     cmds:
       - task: util:download-vscode
         vars:
-          DESTINATION_PARENT: ".tools"
+          DESTINATION_PARENT: "{{.TOOLS_DIR}}"
 
   download-vscode-extensions:
     run: once
@@ -148,9 +176,8 @@ tasks:
   vscode-settings:
     run: once
     vars:
-      GOPATH: '{{joinPath .ROOT_DIR ".tools" "gopath"}}'
-      GOTOOL: '{{joinPath .ROOT_DIR ".tools" "goroot" "bin" "go"}}{{exeExt}}'
-      TASKPATH: '{{joinPath .ROOT_DIR ".tools" "task" "task"}}{{exeExt}}'
+      GOTOOL: '{{joinPath .TOOLS_DIR "goroot" "bin" "go"}}{{exeExt}}'
+      TASKPATH: '{{joinPath .TOOLS_DIR "task" "task"}}{{exeExt}}'
     deps:
       - toolchain
     cmds:
@@ -178,10 +205,11 @@ tasks:
                     ]
                 },
                 "files.autoSave": "afterDelay",
-                "go.gopath": {{.GOPATH | toJson}},
                 "go.alternateTools": {
                     "go": {{.GOTOOL | toJson}}
                 },
+                "go.lintTool": "golangci-lint",
+                "go.gopath": {{.GOPATH | toJson}},
                 "task": {
                     "path": {{.TASKPATH | toJson}}
                 }
