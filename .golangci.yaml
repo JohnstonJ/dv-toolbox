@@ -1,0 +1,46 @@
+---
+run:
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - bodyclose
+    - gci
+    - revive
+
+linters-settings:
+  gci:
+    sections:
+      - standard
+      - default
+      - localmodule
+  revive:
+    rules:
+      # Default rules
+      - name: blank-imports
+      - name: context-as-argument
+      - name: context-keys-type
+      - name: dot-imports
+      - name: empty-block
+      - name: error-naming
+      - name: error-return
+      - name: error-strings
+      - name: errorf
+      - name: exported
+      - name: increment-decrement
+      - name: indent-error-flow
+      - name: package-comments
+      - name: range
+      - name: receiver-naming
+      - name: redefines-builtin-id
+      - name: superfluous-else
+      - name: time-naming
+      - name: unexported-return
+      - name: unreachable-code
+      - name: unused-parameter
+      - name: var-declaration
+      - name: var-naming
+
+      # Additional rules
+      - name: line-length-limit
+        arguments: [100]
