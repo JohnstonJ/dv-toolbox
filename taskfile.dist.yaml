@@ -1,0 +1,175 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3.38"
+
+# Library of general-purpose tasks, ported to Windows.
+# Command Prompt is used if the task is simple enough, since Command Prompt is fast.
+# PowerShell 7 is used for more complex tasks.
+
+vars:
+  GO_VERSION: "1.23.0"
+
+  VSCODE_PATH: >-
+    {{if eq OS "windows"}}.tools\\vscode\\bin\\code.cmd{{else}}.tools/vscode/bin/code{{end}}
+
+includes:
+  util:
+    taskfile: "taskfile_{{OS}}.yaml"
+    internal: true
+
+tasks:
+  default:
+    deps:
+      - toolchain
+
+  # Top-level meta targets
+
+  # All tools and dependencies needed to build this project.
+  toolchain:
+    run: once
+    deps:
+      - download-go
+      - create-gopath
+      - environment-scripts
+
+  # Create the ".tools" directory if it does not already exist
+  create-tools:
+    run: once
+    cmds:
+      - task: util:mkdir
+        vars: { DIR: ".tools" }
+
+  # Download Go and create GOPATH
+  download-go:
+    run: once
+    deps:
+      - create-tools
+    cmds:
+      - task: util:download-go
+        vars:
+          VERSION: "{{.GO_VERSION}}"
+          DESTINATION_PARENT: ".tools"
+  create-gopath:
+    run: once
+    deps:
+      - create-tools
+    cmds:
+      - task: util:mkdir
+        vars: { DIR: ".tools/gopath" }
+
+  # Create convenience scripts for setting environment variables
+  environment-scripts:
+    run: once
+    deps:
+      - download-go
+      - create-gopath
+    vars:
+      GOPATH: '{{joinPath .ROOT_DIR ".tools" "gopath"}}'
+      GOPATHBIN: '{{joinPath .ROOT_DIR ".tools" "gopath" "bin"}}'
+      GOTOOLBIN: '{{joinPath .ROOT_DIR ".tools" "goroot" "bin"}}'
+      TASKPATH: '{{joinPath .ROOT_DIR ".tools" "task"}}'
+      SHPATH: "{{.GOTOOLBIN | toSlash}}:{{.GOPATHBIN | toSlash}}:{{.TASKPATH | toSlash}}:$PATH"
+    cmds:
+      - task: util:write-file
+        vars:
+          FILE: ".tools/setvars.cmd"
+          CONTENT: |-
+            @echo off
+            set GOPATH={{.GOPATH | fromSlash}}
+            set PATH={{.GOTOOLBIN | fromSlash}};{{.GOPATHBIN | fromSlash}};^
+            {{.TASKPATH | fromSlash}};%PATH%
+          NO_OVERWRITE: false
+      - task: util:write-file
+        vars:
+          FILE: ".tools/setvars.ps1"
+          CONTENT: |-
+            $env:GOPATH = '{{.GOPATH | fromSlash | replace "'" "''"}}'
+            $env:PATH = ('{{.GOTOOLBIN | fromSlash | replace "'" "''"}};' + `
+                '{{.GOPATHBIN | fromSlash | replace "'" "''"}};' + `
+                '{{.TASKPATH | fromSlash | replace "'" "''"}};' + $env:PATH)
+          NO_OVERWRITE: false
+      - task: util:write-file
+        vars:
+          FILE: ".tools/setvars.sh"
+          CONTENT: |-
+            export GOPATH={{.GOPATH | toSlash | shellQuote}}
+            export PATH={{.GOTOOLBIN | toSlash | shellQuote}}:\
+            {{.GOPATHBIN | toSlash | shellQuote}}:{{.TASKPATH | toSlash | shellQuote}}:"$PATH"
+          NO_OVERWRITE: false
+
+  # Download and configure Visual Studio Code
+  download-vscode:
+    run: once
+    deps:
+      - create-tools
+    cmds:
+      - task: util:download-vscode
+        vars:
+          DESTINATION_PARENT: ".tools"
+
+  download-vscode-extensions:
+    run: once
+    deps:
+      - download-vscode
+    cmds:
+      - "{{.VSCODE_PATH | shellQuote}} --install-extension golang.go --force"
+      - "{{.VSCODE_PATH | shellQuote}} --install-extension ms-vscode.powershell --force"
+      - "{{.VSCODE_PATH | shellQuote}} --install-extension ms-vscode-remote.remote-wsl --force"
+      # The RedHat YAML extension is recommended per https://taskfile.dev/integrations/
+      - "{{.VSCODE_PATH | shellQuote}} --install-extension redhat.vscode-yaml --force"
+      - "{{.VSCODE_PATH | shellQuote}} --install-extension task.vscode-task --force"
+
+  # Runs Visual Studio code
+  code:
+    run: once
+    deps:
+      - toolchain
+      - download-vscode
+      - download-vscode-extensions
+      - vscode-settings
+    cmds:
+      - "{{.VSCODE_PATH | shellQuote}} --add ."
+
+  # Create default settings file if it doesn't already exist.
+  vscode-settings:
+    run: once
+    vars:
+      GOPATH: '{{joinPath .ROOT_DIR ".tools" "gopath"}}'
+      GOTOOL: '{{joinPath .ROOT_DIR ".tools" "goroot" "bin" "go"}}{{exeExt}}'
+      TASKPATH: '{{joinPath .ROOT_DIR ".tools" "task" "task"}}{{exeExt}}'
+    deps:
+      - toolchain
+    cmds:
+      - task: util:mkdir
+        vars:
+          DIR: ".vscode"
+      - task: util:write-file
+        vars:
+          FILE: ".vscode/settings.json"
+          CONTENT: |-
+            {
+                "[go]": {
+                    "editor.rulers": [
+                        100
+                    ]
+                },
+                "[powershell]": {
+                    "editor.rulers": [
+                        100
+                    ]
+                },
+                "[yaml]": {
+                    "editor.rulers": [
+                        100
+                    ]
+                },
+                "files.autoSave": "afterDelay",
+                "go.gopath": {{.GOPATH | toJson}},
+                "go.alternateTools": {
+                    "go": {{.GOTOOL | toJson}}
+                },
+                "task": {
+                    "path": {{.TASKPATH | toJson}}
+                }
+            }
+          NO_OVERWRITE: true

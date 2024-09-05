@@ -23,3 +23,10 @@ go.work.sum
 
 # env file
 .env
+
+# Taskfile
+.task
+
+# Portable development in this repo
+.tools
+.vscode

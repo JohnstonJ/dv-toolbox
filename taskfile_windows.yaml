@@ -1,0 +1,142 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3.38"
+
+tasks:
+  # Recursively make directory
+  mkdir:
+    requires:
+      vars: [DIR]
+    cmds:
+      - "cmd /e:on /c mkdir {{fromSlash .DIR | shellQuote}}"
+    status:
+      - "cmd /c if not exist {{fromSlash .DIR | shellQuote}} exit 1"
+
+  # Remove a directory
+  rmdir:
+    requires:
+      vars: [DIR]
+    cmds:
+      - "cmd /c rmdir /S /Q {{fromSlash .DIR | shellQuote}}"
+    status:
+      - "cmd /c if exist {{fromSlash .DIR | shellQuote}} exit 1"
+
+  # Download a file.  Uses ETag header to avoid redownload.
+  download:
+    requires:
+      vars: [URI, DESTINATION_FILE]
+    cmds:
+      - >-
+        pwsh scripts/lib/windows/download.ps1 -Uri {{shellQuote .URI}}
+        -OutFile {{fromSlash .DESTINATION_FILE | shellQuote}}
+    status:
+      - >-
+        pwsh scripts/lib/windows/download-status.ps1 -Uri {{shellQuote .URI}}
+        -OutFile {{fromSlash .DESTINATION_FILE | shellQuote}}
+
+  # Write some text to a file
+  write-file:
+    requires:
+      vars: [FILE, CONTENT, NO_OVERWRITE]
+    vars:
+      COMMAND: >-
+        '{{replace "'" "''" .CONTENT}}' | Out-File '{{replace "'" "''" .FILE}}'
+    cmds:
+      - >-
+        pwsh -Command {{shellQuote .COMMAND}}
+    status:
+      - >-
+        cmd /c if not {{.NO_OVERWRITE}}==true \(exit 1\) else
+        if not exist {{.FILE | shellQuote}} exit 1
+
+  # Go tasks
+
+  download-go:
+    run: when_changed
+    requires:
+      vars: [VERSION, DESTINATION_PARENT]
+    vars:
+      GO_ARCH: '{{if eq ARCH "amd64"}}amd64{{end}}'
+      ARCHIVE_FILE: "{{.DESTINATION_PARENT}}/go{{.VERSION}}.windows-{{.GO_ARCH}}.zip"
+    cmds:
+      - task: download
+        vars:
+          URI: "https://go.dev/dl/go{{.VERSION}}.windows-{{.GO_ARCH}}.zip"
+          DESTINATION_FILE: "{{.ARCHIVE_FILE}}"
+      - task: extract-go
+        vars:
+          ARCHIVE_FILE: "{{.ARCHIVE_FILE}}"
+          DESTINATION_PARENT: "{{.DESTINATION_PARENT}}"
+
+  extract-go:
+    run: when_changed
+    requires:
+      vars: [ARCHIVE_FILE, DESTINATION_PARENT]
+    vars:
+      EXTRACT_TMP: "{{.DESTINATION_PARENT}}/go_extract.tmp"
+      EXPAND_COMMAND: >-
+        Expand-Archive '{{fromSlash .ARCHIVE_FILE | replace "'" "''"}}'
+        '{{fromSlash .EXTRACT_TMP | replace "'" "''"}}'
+    cmds:
+      - >-
+        cmd /c if exist {{fromSlash .EXTRACT_TMP | shellQuote}}
+        rmdir /S /Q {{fromSlash .EXTRACT_TMP | shellQuote}}
+
+      - >-
+        cmd /c if exist {{joinPath .DESTINATION_PARENT "goroot" | fromSlash | shellQuote}}
+        rmdir /S /Q {{joinPath .DESTINATION_PARENT "goroot" | fromSlash | shellQuote}}
+
+      - pwsh -Command {{shellQuote .EXPAND_COMMAND}}
+
+      - >-
+        cmd /c move {{joinPath .EXTRACT_TMP "go" | fromSlash | shellQuote}}
+        {{joinPath .DESTINATION_PARENT "goroot" | fromSlash | shellQuote}}
+
+      - "cmd /c rmdir /S /Q {{fromSlash .EXTRACT_TMP | shellQuote}}"
+    sources:
+      - "{{.ARCHIVE_FILE}}"
+    generates:
+      - "{{.DESTINATION_PARENT}}/goroot/**/*"
+
+  # Visual Studio Code tasks
+
+  download-vscode:
+    run: when_changed
+    requires:
+      vars: [DESTINATION_PARENT]
+    vars:
+      VSCODE_ARCH: '{{if eq ARCH "amd64"}}x64{{end}}'
+      ARCHIVE_FILE: "{{.DESTINATION_PARENT}}/vscode.zip"
+    cmds:
+      - task: download
+        vars:
+          URI: "https://code.visualstudio.com/sha/download?build=stable&os=win32-{{.VSCODE_ARCH}}-archive"
+          DESTINATION_FILE: "{{.ARCHIVE_FILE}}"
+      - task: extract-vscode
+        vars:
+          ARCHIVE_FILE: "{{.ARCHIVE_FILE}}"
+          DESTINATION_PARENT: "{{.DESTINATION_PARENT}}"
+      # "data" directory is required for the user settings to be portable
+      - task: mkdir
+        vars:
+          DIR: "{{.DESTINATION_PARENT}}/vscode/data"
+
+  extract-vscode:
+    run: when_changed
+    requires:
+      vars: [ARCHIVE_FILE, DESTINATION_PARENT]
+    vars:
+      EXT_DIR: "{{.DESTINATION_PARENT}}/vscode"
+      EXPAND_COMMAND: >-
+        Expand-Archive '{{fromSlash .ARCHIVE_FILE | replace "'" "''"}}'
+        '{{fromSlash .EXT_DIR | replace "'" "''"}}'
+    cmds:
+      - >-
+        cmd /c if exist {{fromSlash .EXT_DIR | shellQuote}}
+        rmdir /S /Q {{fromSlash .EXT_DIR | shellQuote}}
+
+      - pwsh -Command {{shellQuote .EXPAND_COMMAND}}
+    sources:
+      - "{{.ARCHIVE_FILE}}"
+    generates:
+      - "{{.EXT_DIR}}/**/*"
