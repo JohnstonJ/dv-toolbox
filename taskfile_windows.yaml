@@ -98,6 +98,54 @@ tasks:
     generates:
       - "{{.DESTINATION_PARENT}}/goroot/**/*"
 
+  # golangci-lint tasks
+
+  download-golangci-lint:
+    run: when_changed
+    requires:
+      vars: [VERSION, TOOLS_DIR, GOPATH_BIN_DIR]
+    vars:
+      GO_ARCH: '{{if eq ARCH "amd64"}}amd64{{end}}'
+      ARCHIVE_FILE: "{{.TOOLS_DIR}}/golangci-lint-{{.VERSION}}-windows-{{.GO_ARCH}}.zip"
+    cmds:
+      - task: download
+        vars:
+          URI: "https://github.com/golangci/golangci-lint/releases/download/v{{.VERSION}}/golangci-lint-{{.VERSION}}-windows-{{.GO_ARCH}}.zip"
+          DESTINATION_FILE: "{{.ARCHIVE_FILE}}"
+      - task: extract-golangci-lint
+        vars:
+          ARCHIVE_FILE: "{{.ARCHIVE_FILE}}"
+          ARCHIVE_SUBDIR: "golangci-lint-{{.VERSION}}-windows-{{.GO_ARCH}}"
+          DESTINATION_PARENT: "{{.DESTINATION_PARENT}}"
+          GOPATH_BIN_DIR: "{{.GOPATH_BIN_DIR}}"
+
+  extract-golangci-lint:
+    run: when_changed
+    requires:
+      vars: [ARCHIVE_FILE, ARCHIVE_SUBDIR, DESTINATION_PARENT, GOPATH_BIN_DIR]
+    vars:
+      EXTRACT_TMP: "{{.DESTINATION_PARENT}}/golangci_lint_extract.tmp"
+      EXPAND_COMMAND: >-
+        Expand-Archive '{{fromSlash .ARCHIVE_FILE | replace "'" "''"}}'
+        '{{fromSlash .EXTRACT_TMP | replace "'" "''"}}'
+    cmds:
+      - >-
+        cmd /c if exist {{fromSlash .EXTRACT_TMP | shellQuote}}
+        rmdir /S /Q {{fromSlash .EXTRACT_TMP | shellQuote}}
+
+      - pwsh -Command {{shellQuote .EXPAND_COMMAND}}
+
+      - >-
+        cmd /c move {{joinPath .EXTRACT_TMP .ARCHIVE_SUBDIR "golangci-lint.exe" |
+        fromSlash | shellQuote}}
+        {{joinPath .GOPATH_BIN_DIR "golangci-lint.exe" | fromSlash | shellQuote}}
+
+      - "cmd /c rmdir /S /Q {{fromSlash .EXTRACT_TMP | shellQuote}}"
+    sources:
+      - "{{.ARCHIVE_FILE}}"
+    generates:
+      - "{{.GOPATH_BIN_DIR}}/golangci-lint.exe"
+
   # Visual Studio Code tasks
 
   download-vscode:
