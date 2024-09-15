@@ -1,0 +1,9 @@
+{
+    "version": "1.0",
+    "components": [
+        "Microsoft.VisualStudio.Workload.NativeDesktop"
+    ],
+    "extensions": [
+        "https://marketplace.visualstudio.com/items?itemName=kitamstudios.RustDevelopmentPack"
+    ]
+}

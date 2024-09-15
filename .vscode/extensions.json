@@ -1,0 +1,14 @@
+{
+    "recommendations": [
+        "davidanson.vscode-markdownlint",
+        "eamodio.gitlens",
+        "EditorConfig.EditorConfig",
+        "fill-labs.dependi",
+        "ms-vscode.cpptools",
+        "ms-vscode.powershell",
+        "rust-lang.rust-analyzer",
+        // For editing the Vagrantfile:
+        "Shopify.ruby-lsp",
+        "tamasfe.even-better-toml"
+    ]
+}

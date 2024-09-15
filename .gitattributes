@@ -12,6 +12,7 @@
 *.jpg binary
 *.png binary
 
+*.json text
 *.go text diff=golang
 *.py text diff=python
 *.rs text diff=rust

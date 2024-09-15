@@ -1,0 +1,12 @@
+{
+    "[markdown]": {
+        "editor.rulers": []
+    },
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "editor.inlayHints.enabled": "offUnlessPressed",
+    "editor.rulers": [
+        100
+    ],
+    "files.autoSave": "onFocusChange"
+}
