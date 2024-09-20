@@ -50,6 +50,19 @@ A quick start for developing and building Windows binaries using the provided [V
 
     You can also use `vagrant suspend` to suspend the VM, and `vagrant halt` to gracefully shut down the guest operating system.  These are useful if you're going to come back later to the virtual machine.  Finally, you can use `vagrant box list` and `vagrant box remove <box name>` to remove boxes that you no longer need.  You'll have to redownload them if you want to use them again later.
 
+### Checking and building code
+
+This project uses [just](https://just.systems/man/en/) as a task runner.  To begin, open a shell to the project directory in the development environment.  For Windows builds, connect to the virtual machine via SSH and run `cd R:\dv-toolbox`.
+
+Most common tasks:
+
+- `just`: List all available recipes.
+- `just check`: Run all checks and build all packages with the debug profile.
+- `just test`: Test all packages.
+- `just doc`: Build crate documentation.
+- `just fmt`: Format all code (will modify files).
+- `just build-release`: Build default packages with the release profile.
+
 ### Visual Studio Code
 
 #### Starting Visual Studio Code

@@ -197,6 +197,15 @@ Vagrant.configure("2") do |config|
     Check-Exit-Code
   EOT
 
+  # Install just: a command runner
+  config.vm.provision "just",
+                      type: "shell",
+                      inline: POWERSHELL_HEADER + <<~'EOT'
+    winget install --id Casey.Just --exact --silent `
+      --accept-source-agreements --accept-package-agreements
+    Check-Exit-Code
+  EOT
+
   # Install Visual Studio Code
   config.vm.provision "vscode",
                       type: "shell",

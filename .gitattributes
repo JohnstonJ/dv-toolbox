@@ -1,3 +1,4 @@
+# eol=lf matches with .rustfmt.toml
 * text=auto eol=lf
 
 *.sh text

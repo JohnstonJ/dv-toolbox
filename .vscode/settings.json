@@ -2,11 +2,15 @@
     "[markdown]": {
         "editor.rulers": []
     },
+    "debug.allowBreakpointsEverywhere": true,
     "editor.formatOnPaste": true,
     "editor.formatOnSave": true,
     "editor.inlayHints.enabled": "offUnlessPressed",
     "editor.rulers": [
         100
     ],
-    "files.autoSave": "onFocusChange"
+    "files.autoSave": "onFocusChange",
+    "rust-analyzer.cargo.targetDir": true,
+    "rust-analyzer.debug.sourceFileMap": "auto",
+    "rust-analyzer.testExplorer": true
 }

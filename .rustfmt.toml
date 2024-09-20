@@ -1,0 +1,7 @@
+# Must be commented out until these are stable.  For now, we provide these in the justfile (CLI)
+# group_imports = "StdExternalCrate"
+# imports_granularity = "Crate"
+max_width = 100
+# To match with .gitattributes file
+newline_style = "Unix"
+use_small_heuristics = "Max"
