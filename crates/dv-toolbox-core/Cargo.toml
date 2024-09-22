@@ -12,3 +12,16 @@ version.workspace = true
 
 [lints]
 workspace = true
+
+[dependencies.ffmpeg-next]
+# The version for ffmpeg-next is tied to the same major/minor version that we set in vcpkg.json.
+version = "~7.0.4"
+default-features = false
+features = [
+    "codec",
+    "format",
+    "software-resampling",
+    "software-scaling",
+    "static",
+    "filter",
+]

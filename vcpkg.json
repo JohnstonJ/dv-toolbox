@@ -1,0 +1,25 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+    "dependencies": [
+        {
+            "name": "ffmpeg",
+            "$comment": "The version is tied to the same major/minor ffmpeg-next version that we set in Cargo.toml.",
+            "version>=": "7.0.2",
+            "default-features": false,
+            "features": [
+                "avcodec",
+                "avfilter",
+                "avformat",
+                "swresample",
+                "swscale"
+            ]
+        },
+        {
+            "name": "pkgconf",
+            "$comment": "Used by ffmpeg-next build.rs to locate ffmpeg libraries.",
+            "version>=": "2.3.0",
+            "default-features": false,
+            "host": true
+        }
+    ]
+}

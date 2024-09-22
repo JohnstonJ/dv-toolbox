@@ -65,6 +65,18 @@ Most common tasks:
 
 ### Visual Studio Code
 
+This project uses the [tabaqa](https://marketplace.visualstudio.com/items?itemName=KalimahApps.tabaqa) extension to merge user settings, repo-committed settings, and auto-generated settings into a final `.vscode/settings.json` file.  The rust-analyzer extension will not work correctly without this mechanism.
+
+#### Before opening Visual Studio Code for the first time
+
+1. Open a shell to the project directory in the development environment:
+    - Windows virtual machine:  follow the above instructions to connect via SSH, and then run `cd R:\dv-toolbox`.  Alternatively, do so in a terminal window from the Windows desktop inside the virtual machine.
+2. Run the following command to set up the environment variables for the rust-analyzer extension:
+
+    ```bash
+    just vscode-setup
+    ```
+
 #### Starting Visual Studio Code
 
 Once the virtual machine is running, enter an IDE as follows:

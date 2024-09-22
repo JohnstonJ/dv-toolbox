@@ -206,6 +206,52 @@ Vagrant.configure("2") do |config|
     Check-Exit-Code
   EOT
 
+  # Install vcpkg and make it globally available
+  # (Note it's also included with Visual Studio Community, but not the simple VS Build Tools)
+  config.vm.provision "vcpkg",
+                      type: "shell",
+                      inline: POWERSHELL_HEADER + <<~'EOT'
+    $vcpkg_root = Join-Path $HOME ".vcpkg"
+    if (-not (Test-Path $vcpkg_root)) {
+      git clone https://github.com/microsoft/vcpkg.git $vcpkg_root
+      Check-Exit-Code
+    }
+    Set-Location $vcpkg_root
+    git pull
+    Check-Exit-Code
+
+    .\bootstrap-vcpkg.bat
+    Check-Exit-Code
+
+    .\vcpkg integrate install
+    Check-Exit-Code
+
+    [Environment]::SetEnvironmentVariable("VCPKG_ROOT", $vcpkg_root, "User")
+    $UserPath = [Environment]::GetEnvironmentVariable("Path", "User")
+    if ($UserPath -eq $null) {
+      [Environment]::SetEnvironmentVariable("Path", $vcpkg_root, "User")
+    } elseif ($UserPath -split ";" -notcontains $vcpkg_root) {
+      [Environment]::SetEnvironmentVariable("Path", "$vcpkg_root;$UserPath", "User")
+    }
+  EOT
+
+  # Install LLVM via winget, as recommended by the rust-bindgen documentation.  Note that we could
+  # also cleanly compile from source using vcpkg and keep it local to the project directory.  But
+  # that takes over 2 hours to compile on my laptop (using x64-windows-release triplet and
+  # clang/default-targets features).  Not worth it.
+  config.vm.provision "llvm",
+                      type: "shell",
+                      inline: POWERSHELL_HEADER + <<~'EOT'
+    winget install --id LLVM.LLVM --exact --silent `
+      --accept-source-agreements --accept-package-agreements
+    Check-Exit-Code
+
+    $install_dir = (Get-ItemProperty -Path 'HKLM:\SOFTWARE\WOW6432Node\LLVM\LLVM')."(default)"
+    # rust bindgen expects this environment variable to be sett
+    $install_dir = Join-Path $install_dir "bin"
+    [Environment]::SetEnvironmentVariable("LIBCLANG_PATH", $install_dir, "Machine")
+  EOT
+
   # Install Visual Studio Code
   config.vm.provision "vscode",
                       type: "shell",
