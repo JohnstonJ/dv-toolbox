@@ -57,6 +57,7 @@ This project uses [just](https://just.systems/man/en/) as a task runner.  To beg
 Most common tasks:
 
 - `just`: List all available recipes.
+- `just base-deps`: Install C++ packages and binary tools.  Must be manually run before other recipes below, with the exception of `just check`.
 - `just check`: Run all checks and build all packages with the debug profile.
 - `just test`: Test all packages.
 - `just doc`: Build crate documentation.

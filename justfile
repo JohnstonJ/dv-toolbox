@@ -21,7 +21,7 @@ default:
 
 # Run all checks and build all packages with debug profile
 [group('combined')]
-check: check-fmt check-locked clippy test build-all
+check: base-deps check-fmt check-locked clippy test build-all
 
 # Check that all files are formatted correctly
 [group('lint')]
@@ -49,33 +49,49 @@ check-locked:
 
 # Lint all packages
 [group('lint')]
-clippy: vcpkg-install
+clippy:
     {{ SETUP_DEBUG_ENV }} ; cargo clippy --workspace --all-targets --all-features -- --deny warnings
 
 # Test all packages
 [group('test')]
-test: vcpkg-install
+test: bin-install
     {{ SETUP_DEBUG_ENV }} ; cargo test --workspace
 
 # Build all packages with debug profile
 [group('build')]
-build-all: vcpkg-install
+build-all:
     {{ SETUP_DEBUG_ENV }} ; cargo build --workspace
 
 # Build default packages with debug profile
 [group('build')]
-build: vcpkg-install
+build:
     {{ SETUP_DEBUG_ENV }} ; cargo build
 
 # Build default packages with release profile
 [group('build')]
-build-release: vcpkg-install
+build-release:
     {{ SETUP_RELEASE_ENV }} ; cargo build --release
 
 # Build documentation
 [group('build')]
-doc: vcpkg-install
+doc:
     {{ SETUP_DEBUG_ENV }} ; cargo doc
+
+# Install base tools and packages that still require extra commands to install.
+[group('build')]
+base-deps: bin-install vcpkg-install
+    # Most recipes don't have a declared dependency on this recipe to save time, but they do
+    # require them.
+
+# Install tools using cargo-run-bin
+[group('build')]
+bin-install:
+    cargo bin --install
+
+# Update aliases in .cargo/config.toml so you can run e.g. "cargo llvm-cov".
+[group('edit')]
+bin-sync-aliases:
+    cargo bin --sync-aliases
 
 # Install C/C++ packages via vcpkg
 [group('build')]

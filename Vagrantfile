@@ -197,6 +197,26 @@ Vagrant.configure("2") do |config|
     Check-Exit-Code
   EOT
 
+  # Install cargo-binstall: install prebuilt Rust binaries in a similar style to "cargo install"
+  config.vm.provision "cargo_binstall",
+                      type: "shell",
+                      inline: POWERSHELL_HEADER + <<~'EOT'
+    # From https://github.com/cargo-bins/cargo-binstall?tab=readme-ov-file#windows
+    Set-ExecutionPolicy Unrestricted -Scope Process
+    iex (iwr `
+      "https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.ps1" `
+    ).Content
+  EOT
+
+  # Install cargo-run-bin: install other cargo tools to project's bin directory
+  config.vm.provision "cargo_run_bin",
+                      type: "shell",
+                      inline: POWERSHELL_HEADER + <<~'EOT'
+    # From https://github.com/dustinblackman/cargo-run-bin?tab=readme-ov-file#install
+    cargo install cargo-run-bin
+    Check-Exit-Code
+  EOT
+
   # Install just: a command runner
   config.vm.provision "just",
                       type: "shell",
