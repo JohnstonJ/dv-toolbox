@@ -118,11 +118,22 @@ vcpkg-install:
 [windows]
 vscode-setup:
     # Using New-Item is required to write UTF-8 without a BOM on Windows PowerShell
+    #
+    # Setting RUSTC_BOOTSTRAP is necessary to work around poor performance switching to/from the
+    # VS Code Test Explorer - see:
+    # https://github.com/rust-lang/rust-analyzer/issues/17149#issuecomment-2080396613
+    # You may also want to set this from the shell that you run "just" commands from.
     {{ SETUP_DEBUG_ENV }} ; \
     $rust_env = @{ \
         "rust-analyzer.cargo.extraEnv" = @{ \
             "PKG_CONFIG" = $env:PKG_CONFIG ; \
-            "PKG_CONFIG_PATH" = $env:PKG_CONFIG_PATH \
+            "PKG_CONFIG_PATH" = $env:PKG_CONFIG_PATH ; \
+            "RUSTC_BOOTSTRAP" = "1" \
+        } ; \
+        "rust-analyzer.runnables.extraEnv" = @{ \
+            "PKG_CONFIG" = $env:PKG_CONFIG ; \
+            "PKG_CONFIG_PATH" = $env:PKG_CONFIG_PATH ; \
+            "RUSTC_BOOTSTRAP" = "1" \
         } \
     } | ConvertTo-Json ; \
     New-Item -Force .vscode\rust-environment.json -Value $rust_env | Out-Null

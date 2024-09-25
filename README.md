@@ -93,6 +93,8 @@ Once the virtual machine is running, enter an IDE as follows:
 
     3. Open the folder at `R:\dv-toolbox`.  Install recommended extensions when prompted.
 
+To reduce the number of full rebuilds that happen when switching between builds/tests invoked from Visual Studio Code and commands invoked from the terminal via the justfile or other commands, set environment variable `RUSTC_BOOTSTRAP=1` in your terminal.  This is due to [this issue](https://github.com/rust-lang/rust-analyzer/issues/17149#issuecomment-2080396613)  Note that this should not be done for final debug/release builds or in CI because we don't actually want a dependency on nightly features.
+
 ### Visual Studio Community
 
 In the virtual machine, double-click the icon on the desktop for that.  The extension will likely update rust-analyzer and want to restart Visual Studio at that time.
