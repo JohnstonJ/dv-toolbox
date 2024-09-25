@@ -4,6 +4,8 @@
         "[markdown]": {
             "editor.rulers": []
         },
+        "coverage-gutters.coverageBaseDir": "target/llvm-cov",
+        "coverage-gutters.coverageReportFileName": "target/llvm-cov/html/index.html",
         "debug.allowBreakpointsEverywhere": true,
         "editor.formatOnPaste": true,
         "editor.formatOnSave": true,

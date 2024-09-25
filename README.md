@@ -59,7 +59,8 @@ Most common tasks:
 - `just`: List all available recipes.
 - `just base-deps`: Install C++ packages and binary tools.  Must be manually run before other recipes below, with the exception of `just check`.
 - `just check`: Run all checks and build all packages with the debug profile.
-- `just test`: Test all packages.
+- `just coverage`: Test all packages with code coverage.  An HTML report is generated, along with an `lcov` file that the Visual Studio Code Coverage Gutters extension is configured to look for.
+- `just test`: Test all packages; you may also pass a test name as a recipe parameter.
 - `just doc`: Build crate documentation.
 - `just fmt`: Format all code (will modify files).
 - `just build-release`: Build default packages with the release profile.

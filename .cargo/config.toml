@@ -1,3 +1,6 @@
+[alias]
+llvm-cov = ["bin", "cargo-llvm-cov"]
+
 [build]
 rustflags = ["-C", "target-feature=+crt-static"]
 

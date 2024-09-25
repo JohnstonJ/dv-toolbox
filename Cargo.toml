@@ -12,6 +12,9 @@ repository = "https://github.com/JohnstonJ/dv-toolbox"
 rust-version = "1.81"
 version = "0.1.0"
 
+[workspace.metadata.bin]
+cargo-llvm-cov = { version = "^0.6" }
+
 [workspace.lints.rust]
 missing_debug_implementations = "deny"
 missing_docs = "warn"

@@ -21,7 +21,7 @@ default:
 
 # Run all checks and build all packages with debug profile
 [group('combined')]
-check: base-deps check-fmt check-locked clippy test build-all
+check: base-deps check-fmt check-locked clippy coverage doctest build-all
 
 # Check that all files are formatted correctly
 [group('lint')]
@@ -54,8 +54,20 @@ clippy:
 
 # Test all packages
 [group('test')]
-test: bin-install
-    {{ SETUP_DEBUG_ENV }} ; cargo test --workspace
+test testname="":
+    {{ SETUP_DEBUG_ENV }} ; cargo test --workspace {{ testname }}
+
+# Test all packages with coverage; excludes doctests at this time due to stable Rust limitations
+[group('test')]
+coverage testname="":
+    {{ SETUP_DEBUG_ENV }} ; cargo llvm-cov test --workspace {{ testname }}
+    {{ SETUP_DEBUG_ENV }} ; cargo llvm-cov report --html
+    {{ SETUP_DEBUG_ENV }} ; cargo llvm-cov report --lcov --output-path target/llvm-cov/lcov.info
+
+# Run only doctests
+[group('test')]
+doctest testname="":
+    {{ SETUP_DEBUG_ENV }} ; cargo test --workspace --doc {{ testname }}
 
 # Build all packages with debug profile
 [group('build')]
