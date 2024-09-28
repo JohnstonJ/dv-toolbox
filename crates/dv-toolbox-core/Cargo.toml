@@ -13,15 +13,18 @@ version.workspace = true
 [lints]
 workspace = true
 
-[dependencies.ffmpeg-next]
-# The version for ffmpeg-next is tied to the same major/minor version that we set in vcpkg.json.
-version = "~7.0.4"
-default-features = false
-features = [
-    "codec",
-    "format",
-    "software-resampling",
-    "software-scaling",
-    "static",
-    "filter",
-]
+[dependencies]
+derive_more = { workspace = true, features = ["deref", "deref_mut"] }
+garde = { workspace = true, features = ["derive", "regex"] }
+ffmpeg-next = { workspace = true }
+itertools = { workspace = true }
+libc = { workspace = true }
+num = { workspace = true }
+page_size = { workspace = true }
+snafu = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
+googletest = { workspace = true }
+regex = { workspace = true }
+rstest = { workspace = true }

@@ -1,4 +1,6 @@
 [alias]
+expand = ["bin", "cargo-expand"]
+insta = ["bin", "cargo-insta"]
 llvm-cov = ["bin", "cargo-llvm-cov"]
 
 [build]

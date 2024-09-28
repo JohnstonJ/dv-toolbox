@@ -69,6 +69,11 @@ coverage testname="":
 doctest testname="":
     {{ SETUP_DEBUG_ENV }} ; cargo test --workspace --doc {{ testname }}
 
+# Review new snapshots taken by insta
+[group('test')]
+insta-review:
+    {{ SETUP_DEBUG_ENV }} ; cargo insta review
+
 # Build all packages with debug profile
 [group('build')]
 build-all:
@@ -137,3 +142,16 @@ vscode-setup:
         } \
     } | ConvertTo-Json ; \
     New-Item -Force .vscode\rust-environment.json -Value $rust_env | Out-Null
+
+# Show environment variables that we set
+[group('tools')]
+[windows]
+show-debug-env:
+    {{ SETUP_DEBUG_ENV }} ; \
+    Write-Host "PKG_CONFIG=$($env:PKG_CONFIG)" ; \
+    Write-Host "PKG_CONFIG_PATH=$($env:PKG_CONFIG_PATH)"
+
+# Run the "cargo expand" command to show the results of expanding macros in a library target.
+[group('tools')]
+expand-lib crate path="":
+    {{ SETUP_DEBUG_ENV }} ; cargo expand --package {{ crate }} --lib {{ path }}

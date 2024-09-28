@@ -12,8 +12,36 @@ repository = "https://github.com/JohnstonJ/dv-toolbox"
 rust-version = "1.81"
 version = "0.1.0"
 
+[workspace.dependencies]
+derive_more = "1.0.0"
+garde = "0.20.0"
+googletest = "0.12.0"
+insta = "1.40.0"
+itertools = "0.13.0"
+libc = "0.2.159"
+num = "0.4.3"
+page_size = "0.6.0"
+regex = "1.10.6"
+rstest = "0.22.0"
+snafu = { version = "0.8.5", features = ["rust_1_81"] }
+
+[workspace.dependencies.ffmpeg-next]
+# The version for ffmpeg-next is tied to the same major/minor version that we set in vcpkg.json.
+version = "~7.0.4"
+default-features = false
+features = [
+    "codec",
+    "format",
+    "software-resampling",
+    "software-scaling",
+    "static",
+    "filter",
+]
+
 [workspace.metadata.bin]
-cargo-llvm-cov = { version = "^0.6" }
+cargo-expand = { version = "^1.0.90" }
+cargo-insta = { version = "^1.40.0" }
+cargo-llvm-cov = { version = "^0.6.13" }
 
 [workspace.lints.rust]
 missing_debug_implementations = "deny"
@@ -24,6 +52,10 @@ unused_lifetimes = "deny"
 
 [workspace.lints.clippy]
 tests_outside_test_module = "deny"
+
+[profile.dev.package]
+insta.opt-level = 3
+similar.opt-level = 3
 
 [profile.release]
 codegen-units = 1
