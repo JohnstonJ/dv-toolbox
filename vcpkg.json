@@ -3,11 +3,16 @@
     "dependencies": [
         {
             "name": "ffmpeg",
-            "$comment": "The version is tied to the same major/minor ffmpeg-next version that we set in Cargo.toml.",
+            "$comment_version_1": "The version is closely tied to the rsmpeg version that ",
+            "$comment_version_2": "we set in Cargo.toml.",
             "version>=": "7.0.2",
             "default-features": false,
+            "$comment_device_1": "We do not actually need avdevice, but rsmpeg / rusty_ffmpeg ",
+            "$comment_device_2": "demands that we include it anyway.",
+            "$comment_device_link": "See https://github.com/CCExtractor/rusty_ffmpeg/issues/128",
             "features": [
                 "avcodec",
+                "avdevice",
                 "avfilter",
                 "avformat",
                 "swresample",
@@ -16,7 +21,7 @@
         },
         {
             "name": "pkgconf",
-            "$comment": "Used by ffmpeg-next build.rs to locate ffmpeg libraries.",
+            "$comment": "Used by rusty_ffmpeg build.rs to locate ffmpeg libraries.",
             "version>=": "2.3.0",
             "default-features": false,
             "host": true

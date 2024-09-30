@@ -13,15 +13,15 @@ set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
 #
 # Non-Windows platforms are not yet supported, so we will fail the recipe in that case.
 
-SETUP_DEBUG_ENV := if os_family() == "windows" { "$env:PKG_CONFIG = \"" + justfile_directory() + "\\vcpkg_installed\\x64-windows-release\\tools\\pkgconf\\pkgconf.exe\"\n" + "$env:PKG_CONFIG_PATH = \"" + justfile_directory() + "\\vcpkg_installed\\x64-windows-static\\debug\\lib\\pkgconfig\"\n" } else { "exit 1" }
-SETUP_RELEASE_ENV := if os_family() == "windows" { "$env:PKG_CONFIG = \"" + justfile_directory() + "\\vcpkg_installed\\x64-windows-release\\tools\\pkgconf\\pkgconf.exe\"\n" + "$env:PKG_CONFIG_PATH = \"" + justfile_directory() + "\\vcpkg_installed\\x64-windows-static\\lib\\pkgconfig\"\n" } else { "exit 1" }
+SETUP_DEBUG_ENV := if os_family() == "windows" { "$env:PKG_CONFIG = \"" + justfile_directory() + "\\vcpkg_installed\\x64-windows-release\\tools\\pkgconf\\pkgconf.exe\"\n" + "$env:FFMPEG_PKG_CONFIG_PATH = \"" + justfile_directory() + "\\vcpkg_installed\\x64-windows-static\\debug\\lib\\pkgconfig\"\n" } else { "exit 1" }
+SETUP_RELEASE_ENV := if os_family() == "windows" { "$env:PKG_CONFIG = \"" + justfile_directory() + "\\vcpkg_installed\\x64-windows-release\\tools\\pkgconf\\pkgconf.exe\"\n" + "$env:FFMPEG_PKG_CONFIG_PATH = \"" + justfile_directory() + "\\vcpkg_installed\\x64-windows-static\\lib\\pkgconfig\"\n" } else { "exit 1" }
 
 default:
     @just --list
 
 # Run all checks and build all packages with debug profile
 [group('combined')]
-check: base-deps check-fmt check-locked clippy coverage doctest build-all
+verify: base-deps check-fmt check-locked clippy coverage doctest build-all
 
 # Check that all files are formatted correctly
 [group('lint')]
@@ -47,6 +47,11 @@ fmt:
 check-locked:
     cargo verify-project --locked
 
+# Check all packages
+[group('lint')]
+check:
+    {{ SETUP_DEBUG_ENV }} ; cargo check --workspace --all-targets --all-features
+
 # Lint all packages
 [group('lint')]
 clippy:
@@ -68,6 +73,11 @@ coverage testname="":
 [group('test')]
 doctest testname="":
     {{ SETUP_DEBUG_ENV }} ; cargo test --workspace --doc {{ testname }}
+
+# Review new snapshots taken by insta
+[group('test')]
+insta-review:
+    {{ SETUP_DEBUG_ENV }} ; cargo insta review
 
 # Build all packages with debug profile
 [group('build')]
@@ -127,13 +137,26 @@ vscode-setup:
     $rust_env = @{ \
         "rust-analyzer.cargo.extraEnv" = @{ \
             "PKG_CONFIG" = $env:PKG_CONFIG ; \
-            "PKG_CONFIG_PATH" = $env:PKG_CONFIG_PATH ; \
+            "FFMPEG_PKG_CONFIG_PATH" = $env:FFMPEG_PKG_CONFIG_PATH ; \
             "RUSTC_BOOTSTRAP" = "1" \
         } ; \
         "rust-analyzer.runnables.extraEnv" = @{ \
             "PKG_CONFIG" = $env:PKG_CONFIG ; \
-            "PKG_CONFIG_PATH" = $env:PKG_CONFIG_PATH ; \
+            "FFMPEG_PKG_CONFIG_PATH" = $env:FFMPEG_PKG_CONFIG_PATH ; \
             "RUSTC_BOOTSTRAP" = "1" \
         } \
     } | ConvertTo-Json ; \
     New-Item -Force .vscode\rust-environment.json -Value $rust_env | Out-Null
+
+# Show environment variables that we set
+[group('tools')]
+[windows]
+show-debug-env:
+    {{ SETUP_DEBUG_ENV }} ; \
+    Write-Host "PKG_CONFIG=$($env:PKG_CONFIG)" ; \
+    Write-Host "FFMPEG_PKG_CONFIG_PATH=$($env:FFMPEG_PKG_CONFIG_PATH)"
+
+# Run the "cargo expand" command to show the results of expanding macros in a library target.
+[group('tools')]
+expand-lib crate path="":
+    {{ SETUP_DEBUG_ENV }} ; cargo expand --package {{ crate }} --lib {{ path }}

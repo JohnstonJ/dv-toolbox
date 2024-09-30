@@ -1,4 +1,6 @@
 [alias]
+expand = ["bin", "cargo-expand"]
+insta = ["bin", "cargo-insta"]
 llvm-cov = ["bin", "cargo-llvm-cov"]
 
 [build]
@@ -11,4 +13,7 @@ rustflags = ["-C", "target-feature=+crt-static"]
 # vcpkg-rs is disabled because the version on crates.io is really old and doesn't support
 # vcpkg manifests / alternate installed directories.  Even the master branch also doesn't seem to
 # have any way to correctly link with the vcpkg debug libraries in the debug/ subdirectories.
+#
+# https://github.com/mcgoo/vcpkg-rs/issues/41
+# https://github.com/mcgoo/vcpkg-rs/issues/62
 VCPKGRS_DISABLE = "1"

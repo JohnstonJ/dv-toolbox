@@ -12,8 +12,31 @@ repository = "https://github.com/JohnstonJ/dv-toolbox"
 rust-version = "1.81"
 version = "0.1.0"
 
+[workspace.dependencies]
+derive_more = "1.0.0"
+garde = "0.20.0"
+googletest = "0.12.0"
+insta = "1.40.0"
+itertools = "0.13.0"
+libc = "0.2.159"
+num = "0.4.3"
+page_size = "0.6.0"
+regex = "1.11.0"
+# The version for rsmpeg is closely tied to the FFmpeg version that we set in vcpkg.json.
+rsmpeg = "0.15.1"
+rstest = "0.23.0"
+# Temporarily in place while we are patching rusty_ffmpeg
+rusty_ffmpeg = { version = "0.16.1", features = ["ffmpeg7"] }
+snafu = { version = "0.8.5", features = ["rust_1_81"] }
+
+[patch.crates-io]
+rsmpeg = { git = "https://github.com/larksuite/rsmpeg", rev = "0319be747095398f481fdf23b562c57dd0ff52c0" }
+rusty_ffmpeg = { git = "https://github.com/JohnstonJ/rusty_ffmpeg/", branch = "james/fix-windows-linking" }
+
 [workspace.metadata.bin]
-cargo-llvm-cov = { version = "^0.6" }
+cargo-expand = { version = "^1.0.90" }
+cargo-insta = { version = "^1.40.0" }
+cargo-llvm-cov = { version = "^0.6.13" }
 
 [workspace.lints.rust]
 missing_debug_implementations = "deny"
@@ -24,6 +47,10 @@ unused_lifetimes = "deny"
 
 [workspace.lints.clippy]
 tests_outside_test_module = "deny"
+
+[profile.dev.package]
+insta.opt-level = 3
+similar.opt-level = 3
 
 [profile.release]
 codegen-units = 1

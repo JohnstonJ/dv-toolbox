@@ -1,10 +1,13 @@
 {
     "recommendations": [
+        "bierner.docs-view",
         "davidanson.vscode-markdownlint",
         "eamodio.gitlens",
         "EditorConfig.EditorConfig",
         "fill-labs.dependi",
+        "Gruntfuggly.todo-tree",
         "KalimahApps.tabaqa",
+        "mitsuhiko.insta",
         "ms-vscode.cpptools",
         // Live Preview is required by ryanluker.vscode-coverage-gutters
         "ms-vscode.live-server",
@@ -14,6 +17,7 @@
         "ryanluker.vscode-coverage-gutters",
         // For editing the Vagrantfile:
         "Shopify.ruby-lsp",
-        "tamasfe.even-better-toml"
+        "tamasfe.even-better-toml",
+        "usernamehw.errorlens"
     ]
 }

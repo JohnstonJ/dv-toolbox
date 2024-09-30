@@ -20,7 +20,9 @@ A quick start for developing and building Windows binaries using the provided [V
         1. Create a different local user on the Windows host PC that does not have spaces and use that when running `vagrant up`.
         2. Explicitly give this user access to the project/repository directory: go to the folder properties, go to the **Security** tab, and grant this user **Full control** over this repository **parent** directory.  For example, if this repository is located in `C:\Users\John\Documents\Projects\dv-toolbox`, then grant the user full access to the `Projects` directory.
 
-4. Start the virtual machine.  For Hyper-V, this must be done from an administrator console:
+4. Consider temporarily hacking the [`Vagrantfile`](Vagrantfile) to have a higher CPU count appropriate for your machine.
+
+5. Start the virtual machine.  For Hyper-V, this must be done from an administrator console:
 
     ```PowerShell
     vagrant up
@@ -28,9 +30,9 @@ A quick start for developing and building Windows binaries using the provided [V
 
     Vagrant will automatically choose a provider based on the [default provider search procedure](https://developer.hashicorp.com/vagrant/docs/providers/basic_usage#default-provider), but you can specify a different one using `--provider`.  If the SMB synced folder is used, you'll be asked to enter your username and password for the host PC.
 
-5. You can connect to the VM using Remote Desktop.  Locate the IP address in Hyper-V Manager.  Alternatively, you can connect to the VM directly from Hyper-V Manager.  The username and password are both `vagrant`.
+6. You can connect to the VM using Remote Desktop.  Locate the IP address in Hyper-V Manager.  Alternatively, you can connect to the VM directly from Hyper-V Manager.  The username and password are both `vagrant`.
 
-6. Alternatively, you can connect using SSH.
+7. Alternatively, you can connect using SSH.
     1. Run `vagrant ssh-config` and add the SSH configuration to your `~/.ssh/config` file.  You may wish to rename the `Host` from `default` to something more specific.  We'll assume you call the host `dv-toolbox`.
     2. Test the SSH connection by running:
 
@@ -42,13 +44,19 @@ A quick start for developing and building Windows binaries using the provided [V
     3. Once logged in, test that `dir R:\dv-toolbox` shows the contents of the repository.
     4. If the virtual machine is restarted and gets a different IP address, you will have to repeat the SSH configuration step.
 
-7. When you're finished, the virtual machine can be destroyed:
+8. When you're finished, the virtual machine can be destroyed:
 
     ```PowerShell
     vagrant destroy
     ```
 
     You can also use `vagrant suspend` to suspend the VM, and `vagrant halt` to gracefully shut down the guest operating system.  These are useful if you're going to come back later to the virtual machine.  Finally, you can use `vagrant box list` and `vagrant box remove <box name>` to remove boxes that you no longer need.  You'll have to redownload them if you want to use them again later.
+
+Performance notes:
+
+- Increase the CPU count for the virtual machine to an appropriate number.
+- Use [Winaero Tweaker] inside the virtual machine to disable Microsoft Defender / Windows Security.
+- On the host PC, be sure to add the project directory as an exclusion to Windows Security.
 
 ### Checking and building code
 
@@ -58,7 +66,7 @@ Most common tasks:
 
 - `just`: List all available recipes.
 - `just base-deps`: Install C++ packages and binary tools.  Must be manually run before other recipes below, with the exception of `just check`.
-- `just check`: Run all checks and build all packages with the debug profile.
+- `just verify`: Run all checks and build all packages with the debug profile.
 - `just coverage`: Test all packages with code coverage.  An HTML report is generated, along with an `lcov` file that the Visual Studio Code Coverage Gutters extension is configured to look for.
 - `just test`: Test all packages; you may also pass a test name as a recipe parameter.
 - `just doc`: Build crate documentation.
