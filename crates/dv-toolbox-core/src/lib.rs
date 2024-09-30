@@ -10,6 +10,7 @@
 
 #![allow(dead_code, unused_imports)]
 mod ffutil;
+pub mod file;
 mod ioutil;
 
 #[cfg(test)]
