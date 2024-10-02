@@ -15,6 +15,11 @@ EOT
 
 PROJECT_NAME = "dv-toolbox"
 
+def total_cpus
+  require 'etc'
+  Etc.nprocessors
+end
+
 Vagrant.configure("2") do |config|
   config.vm.box = "gusztavvargadr/windows-11-23h2-enterprise"
 
@@ -32,7 +37,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
   config.vm.provider "hyperv" do |provider|
-    provider.cpus = 4
+    provider.cpus = total_cpus
     provider.memory = 1024
     provider.maxmemory = 12_288
     provider.linked_clone = true # saves a lot of time on first "vagrant up"
