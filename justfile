@@ -159,4 +159,4 @@ show-debug-env:
 # Run the "cargo expand" command to show the results of expanding macros in a library target.
 [group('tools')]
 expand-lib crate path="":
-    {{ SETUP_DEBUG_ENV }} ; cargo expand --package {{ crate }} --lib {{ path }}
+    {{ SETUP_DEBUG_ENV }} ; cargo expand --package {{ crate }} --lib --tests {{ path }}
