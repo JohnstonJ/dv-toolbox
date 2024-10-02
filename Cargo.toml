@@ -28,6 +28,7 @@ rstest = "0.23.0"
 # Temporarily in place while we are patching rusty_ffmpeg
 rusty_ffmpeg = { version = "0.16.1", features = ["ffmpeg7"] }
 snafu = { version = "0.8.5", features = ["rust_1_81"] }
+stdext = "0.3.3"
 
 [patch.crates-io]
 rsmpeg = { git = "https://github.com/larksuite/rsmpeg", rev = "0319be747095398f481fdf23b562c57dd0ff52c0" }

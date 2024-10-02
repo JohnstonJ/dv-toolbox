@@ -349,9 +349,9 @@ impl ValidInfoMethods for ValidInfo {
         );
         ensure_whatever!(
             self.audio_sample_rate == other.audio_sample_rate,
-            "Audio sample rate {:?} does not match {:?}",
-            other.audio_sample_rate,
-            self.audio_sample_rate
+            "Audio sample rate {} does not match {}",
+            other.audio_sample_rate.map_or(String::from("None"), |s| s.to_string()),
+            self.audio_sample_rate.map_or(String::from("None"), |s| s.to_string())
         );
         Ok(())
     }

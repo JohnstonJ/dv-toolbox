@@ -14,7 +14,7 @@ version.workspace = true
 workspace = true
 
 [dependencies]
-derive_more = { workspace = true, features = ["deref", "deref_mut"] }
+derive_more = { workspace = true, features = ["deref", "deref_mut", "from"] }
 garde = { workspace = true, features = ["derive", "regex"] }
 itertools = { workspace = true }
 libc = { workspace = true }
@@ -24,6 +24,7 @@ rsmpeg = { workspace = true }
 # Temporarily in place while we are patching rusty_ffmpeg
 rusty_ffmpeg = { workspace = true }
 snafu = { workspace = true }
+stdext = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true }

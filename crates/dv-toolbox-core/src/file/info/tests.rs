@@ -1,11 +1,23 @@
-use std::{fs::File, sync::LazyLock};
+use core::str;
+use std::{
+    collections::HashMap,
+    fs::File,
+    sync::{LazyLock, Mutex},
+};
 
 use googletest::prelude::*;
 use num::rational::Ratio;
 use rstest::rstest;
+use stdext::function_name;
 
 use super::*;
-use crate::testutil;
+use crate::testutil::*;
+
+test_all_test_cases_ran!(
+    ("test_info_read", &INFO_READ_TEST_CASES),
+    ("test_info_validation", &INFO_VALIDATION_TEST_CASES),
+    ("test_info_check_similar", &INFO_CHECK_SIMILAR_TEST_CASES)
+);
 
 #[derive(Debug)]
 struct DerivedFields {
@@ -41,8 +53,9 @@ struct InfoReadTestCase<'a> {
     derived: DerivedFields,
 }
 
-static INFO_READ_SONY_GOOD_QUALITY: LazyLock<InfoReadTestCase> =
-    LazyLock::new(|| InfoReadTestCase {
+static INFO_READ_TEST_CASES: LazyTestCases<InfoReadTestCase> = test_case_map!(
+    "sony_good_quality",
+    InfoReadTestCase {
         filename: "dv_multiframe/sony_good_quality.dv",
         info: Info {
             file_size: 600_000,
@@ -59,13 +72,16 @@ static INFO_READ_SONY_GOOD_QUALITY: LazyLock<InfoReadTestCase> =
             system: System::Sys525_60,
             ideal_audio_samples_per_frame: Some(Ratio::<u32>::new(16_016, 15)),
         },
-    });
+    }
+);
 
 #[googletest::test]
 #[rstest]
-#[case::sony_good_quality(&*INFO_READ_SONY_GOOD_QUALITY)]
-fn test_info_read(#[case] tc: &InfoReadTestCase) {
-    let file = File::open(testutil::test_resource(tc.filename)).unwrap();
+#[case::sony_good_quality(function_name!())]
+fn test_info_read(#[case] test_function_name: &str) {
+    let tc = INFO_READ_TEST_CASES.get_test_case(test_function_name);
+
+    let file = File::open(test_resource(tc.filename)).unwrap();
     let info = ValidInfo::read(Rc::new(RefCell::new(file))).unwrap();
 
     expect_that!(*info, eq(tc.info));
@@ -79,8 +95,9 @@ struct InfoValidationTestCase<'a> {
     derived: Option<DerivedFields>,
 }
 
-static INFO_VALIDATION_NTSC_48K: LazyLock<InfoValidationTestCase> =
-    LazyLock::new(|| InfoValidationTestCase {
+static INFO_VALIDATION_TEST_CASES: LazyTestCases<InfoValidationTestCase> = test_case_map!(
+    "ntsc_48k",
+    InfoValidationTestCase {
         info: Info {
             file_size: 600_000,
             video_frame_rate: Ratio::<u32>::new(30_000, 1_001),
@@ -97,10 +114,9 @@ static INFO_VALIDATION_NTSC_48K: LazyLock<InfoValidationTestCase> =
             system: System::Sys525_60,
             ideal_audio_samples_per_frame: Some(Ratio::<u32>::new(16_016, 15)),
         }),
-    });
-
-static INFO_VALIDATION_PAL_44_1K: LazyLock<InfoValidationTestCase> =
-    LazyLock::new(|| InfoValidationTestCase {
+    },
+    "pal_44_1k",
+    InfoValidationTestCase {
         info: Info {
             file_size: 1_008_000,
             video_frame_rate: Ratio::<u32>::from(25),
@@ -117,10 +133,9 @@ static INFO_VALIDATION_PAL_44_1K: LazyLock<InfoValidationTestCase> =
             system: System::Sys625_50,
             ideal_audio_samples_per_frame: Some(Ratio::<u32>::from(1_764)),
         }),
-    });
-
-static INFO_VALIDATION_NTSC_NO_AUDIO_2_CHANNEL: LazyLock<InfoValidationTestCase> =
-    LazyLock::new(|| InfoValidationTestCase {
+    },
+    "ntsc_no_audio_2_channel",
+    InfoValidationTestCase {
         info: Info {
             file_size: 960_000,
             video_frame_rate: Ratio::<u32>::new(30_000, 1_001),
@@ -137,10 +152,9 @@ static INFO_VALIDATION_NTSC_NO_AUDIO_2_CHANNEL: LazyLock<InfoValidationTestCase>
             system: System::Sys525_60,
             ideal_audio_samples_per_frame: None,
         }),
-    });
-
-static INFO_VALIDATION_PAL_NO_AUDIO_2_CHANNEL: LazyLock<InfoValidationTestCase> =
-    LazyLock::new(|| InfoValidationTestCase {
+    },
+    "pal_no_audio_2_channel",
+    InfoValidationTestCase {
         info: Info {
             file_size: 1_728_000,
             video_frame_rate: Ratio::<u32>::from(25),
@@ -157,10 +171,9 @@ static INFO_VALIDATION_PAL_NO_AUDIO_2_CHANNEL: LazyLock<InfoValidationTestCase> 
             system: System::Sys625_50,
             ideal_audio_samples_per_frame: None,
         }),
-    });
-
-static INFO_VALIDATION_NON_INTEGER_FRAME_COUNT: LazyLock<InfoValidationTestCase> =
-    LazyLock::new(|| InfoValidationTestCase {
+    },
+    "non_integer_frame_count",
+    InfoValidationTestCase {
         info: Info {
             file_size: 600_000,
             video_frame_rate: Ratio::<u32>::new(30_000, 1_001),
@@ -170,14 +183,13 @@ static INFO_VALIDATION_NON_INTEGER_FRAME_COUNT: LazyLock<InfoValidationTestCase>
         },
         err: Some(
             "video_duration: Total video frame count 5006/1001 is not an integer; \
-            it resulted from multiplying video frame rate 30000/1001 by video \
-            duration 2503/15000\n",
+                it resulted from multiplying video frame rate 30000/1001 by video \
+                duration 2503/15000\n",
         ),
         derived: None,
-    });
-
-static INFO_VALIDATION_ZERO_LENGTH: LazyLock<InfoValidationTestCase> =
-    LazyLock::new(|| InfoValidationTestCase {
+    },
+    "zero_length",
+    InfoValidationTestCase {
         info: Info {
             file_size: 0,
             video_frame_rate: Ratio::<u32>::new(30_000, 1_001),
@@ -189,10 +201,9 @@ static INFO_VALIDATION_ZERO_LENGTH: LazyLock<InfoValidationTestCase> =
             "video_duration: Video frame count is zero, so cannot calculate the frame size\n",
         ),
         derived: None,
-    });
-
-static INFO_VALIDATION_WEIRD_FILE_SIZE: LazyLock<InfoValidationTestCase> =
-    LazyLock::new(|| InfoValidationTestCase {
+    },
+    "weird_file_size",
+    InfoValidationTestCase {
         info: Info {
             file_size: 600_001,
             video_frame_rate: Ratio::<u32>::new(30_000, 1_001),
@@ -204,10 +215,9 @@ static INFO_VALIDATION_WEIRD_FILE_SIZE: LazyLock<InfoValidationTestCase> =
             "video_duration: File size 600001 is not evenly divisible by video frame count 5\n",
         ),
         derived: None,
-    });
-
-static INFO_VALIDATION_UNSUPPORTED_FRAME_SIZE: LazyLock<InfoValidationTestCase> =
-    LazyLock::new(|| InfoValidationTestCase {
+    },
+    "unsupported_frame_size",
+    InfoValidationTestCase {
         info: Info {
             file_size: 600_005,
             video_frame_rate: Ratio::<u32>::new(30_000, 1_001),
@@ -217,10 +227,9 @@ static INFO_VALIDATION_UNSUPPORTED_FRAME_SIZE: LazyLock<InfoValidationTestCase> 
         },
         err: Some("video_duration: Unsupported frame size 120001\n"),
         derived: None,
-    });
-
-static INFO_VALIDATION_UNSUPPORTED_FRAME_RATE: LazyLock<InfoValidationTestCase> =
-    LazyLock::new(|| InfoValidationTestCase {
+    },
+    "unsupported_frame_rate",
+    InfoValidationTestCase {
         info: Info {
             file_size: 600_000,
             video_frame_rate: Ratio::<u32>::new(30_001, 1_001),
@@ -233,10 +242,9 @@ static INFO_VALIDATION_UNSUPPORTED_FRAME_RATE: LazyLock<InfoValidationTestCase> 
             supported NTSC/PAL/SECAM rate\n",
         ),
         derived: None,
-    });
-
-static INFO_VALIDATION_UNSUPPORTED_SAMPLE_RATE: LazyLock<InfoValidationTestCase> =
-    LazyLock::new(|| InfoValidationTestCase {
+    },
+    "unsupported_sample_rate",
+    InfoValidationTestCase {
         info: Info {
             file_size: 600_000,
             video_frame_rate: Ratio::<u32>::new(30_000, 1_001),
@@ -246,10 +254,9 @@ static INFO_VALIDATION_UNSUPPORTED_SAMPLE_RATE: LazyLock<InfoValidationTestCase>
         },
         err: Some("audio_sample_rate: Unsupported audio sample rate 32001\n"),
         derived: None,
-    });
-
-static INFO_VALIDATION_MISSING_SAMPLE_RATE: LazyLock<InfoValidationTestCase> =
-    LazyLock::new(|| InfoValidationTestCase {
+    },
+    "missing_sample_rate",
+    InfoValidationTestCase {
         info: Info {
             file_size: 600_000,
             video_frame_rate: Ratio::<u32>::new(30_000, 1_001),
@@ -259,10 +266,9 @@ static INFO_VALIDATION_MISSING_SAMPLE_RATE: LazyLock<InfoValidationTestCase> =
         },
         err: Some("audio_sample_rate: Could not detect sample rate for audio streams\n"),
         derived: None,
-    });
-
-static INFO_VALIDATION_UNEXPECTED_SAMPLE_RATE: LazyLock<InfoValidationTestCase> =
-    LazyLock::new(|| InfoValidationTestCase {
+    },
+    "unexpected_sample_rate",
+    InfoValidationTestCase {
         info: Info {
             file_size: 600_000,
             video_frame_rate: Ratio::<u32>::new(30_000, 1_001),
@@ -275,23 +281,26 @@ static INFO_VALIDATION_UNEXPECTED_SAMPLE_RATE: LazyLock<InfoValidationTestCase> 
             if there are no audio streams\n",
         ),
         derived: None,
-    });
+    }
+);
 
 #[googletest::test]
 #[rstest]
-#[case::ntsc_48k(&*INFO_VALIDATION_NTSC_48K)]
-#[case::pal_44_1k(&*INFO_VALIDATION_PAL_44_1K)]
-#[case::ntsc_no_audio_2_channel(&*INFO_VALIDATION_NTSC_NO_AUDIO_2_CHANNEL)]
-#[case::pal_no_audio_2_channel(&*INFO_VALIDATION_PAL_NO_AUDIO_2_CHANNEL)]
-#[case::non_integer_frame_count(&*INFO_VALIDATION_NON_INTEGER_FRAME_COUNT)]
-#[case::zero_length(&*INFO_VALIDATION_ZERO_LENGTH)]
-#[case::weird_file_size(&*INFO_VALIDATION_WEIRD_FILE_SIZE)]
-#[case::unsupported_frame_size(&*INFO_VALIDATION_UNSUPPORTED_FRAME_SIZE)]
-#[case::unsupported_frame_rate(&*INFO_VALIDATION_UNSUPPORTED_FRAME_RATE)]
-#[case::unsupported_sample_rate(&*INFO_VALIDATION_UNSUPPORTED_SAMPLE_RATE)]
-#[case::missing_sample_rate(&*INFO_VALIDATION_MISSING_SAMPLE_RATE)]
-#[case::unexpected_sample_rate(&*INFO_VALIDATION_UNEXPECTED_SAMPLE_RATE)]
-fn test_info_validation(#[case] tc: &InfoValidationTestCase) {
+#[case::ntsc_48k(function_name!())]
+#[case::pal_44_1k(function_name!())]
+#[case::ntsc_no_audio_2_channel(function_name!())]
+#[case::pal_no_audio_2_channel(function_name!())]
+#[case::non_integer_frame_count(function_name!())]
+#[case::zero_length(function_name!())]
+#[case::weird_file_size(function_name!())]
+#[case::unsupported_frame_size(function_name!())]
+#[case::unsupported_frame_rate(function_name!())]
+#[case::unsupported_sample_rate(function_name!())]
+#[case::missing_sample_rate(function_name!())]
+#[case::unexpected_sample_rate(function_name!())]
+fn test_info_validation(#[case] test_function_name: &str) {
+    let tc = INFO_VALIDATION_TEST_CASES.get_test_case(test_function_name);
+
     let res = UnvalidatedInfo::from(tc.info).validate();
     if let Some(ref derived) = tc.derived {
         derived.assert_info(&res.unwrap());
@@ -307,8 +316,9 @@ struct InfoCheckSimilarTestCase<'a> {
     err: Option<&'a str>,
 }
 
-static INFO_CHECK_SIMILAR_MATCHES: LazyLock<InfoCheckSimilarTestCase> =
-    LazyLock::new(|| InfoCheckSimilarTestCase {
+static INFO_CHECK_SIMILAR_TEST_CASES: LazyTestCases<InfoCheckSimilarTestCase> = test_case_map!(
+    "matches",
+    InfoCheckSimilarTestCase {
         expected: Info {
             file_size: 600_000,
             video_frame_rate: Ratio::<u32>::new(30_000, 1_001),
@@ -324,10 +334,9 @@ static INFO_CHECK_SIMILAR_MATCHES: LazyLock<InfoCheckSimilarTestCase> =
             audio_sample_rate: Some(32_000),
         },
         err: None,
-    });
-
-static INFO_CHECK_SIMILAR_FRAME_RATE_MISMATCH: LazyLock<InfoCheckSimilarTestCase> =
-    LazyLock::new(|| InfoCheckSimilarTestCase {
+    },
+    "frame_rate_mismatch",
+    InfoCheckSimilarTestCase {
         expected: Info {
             file_size: 600_000,
             video_frame_rate: Ratio::<u32>::new(30_000, 1_001),
@@ -343,10 +352,9 @@ static INFO_CHECK_SIMILAR_FRAME_RATE_MISMATCH: LazyLock<InfoCheckSimilarTestCase
             audio_sample_rate: Some(32_000),
         },
         err: Some("Video frame rate 25 does not match 30000/1001"),
-    });
-
-static INFO_CHECK_SIMILAR_FRAME_SIZE_MISMATCH: LazyLock<InfoCheckSimilarTestCase> =
-    LazyLock::new(|| InfoCheckSimilarTestCase {
+    },
+    "frame_size_mismatch",
+    InfoCheckSimilarTestCase {
         expected: Info {
             file_size: 600_000,
             video_frame_rate: Ratio::<u32>::new(30_000, 1_001),
@@ -362,10 +370,9 @@ static INFO_CHECK_SIMILAR_FRAME_SIZE_MISMATCH: LazyLock<InfoCheckSimilarTestCase
             audio_sample_rate: Some(32_000),
         },
         err: Some("Video frame size 240000 does not match 120000"),
-    });
-
-static INFO_CHECK_SIMILAR_AUDIO_STREAM_COUNT_MISMATCH: LazyLock<InfoCheckSimilarTestCase> =
-    LazyLock::new(|| InfoCheckSimilarTestCase {
+    },
+    "audio_stream_count_mismatch",
+    InfoCheckSimilarTestCase {
         expected: Info {
             file_size: 600_000,
             video_frame_rate: Ratio::<u32>::new(30_000, 1_001),
@@ -381,10 +388,9 @@ static INFO_CHECK_SIMILAR_AUDIO_STREAM_COUNT_MISMATCH: LazyLock<InfoCheckSimilar
             audio_sample_rate: Some(32_000),
         },
         err: Some("Audio stereo stream count 1 does not match 2"),
-    });
-
-static INFO_CHECK_SIMILAR_AUDIO_SAMPLE_RATE_MISMATCH: LazyLock<InfoCheckSimilarTestCase> =
-    LazyLock::new(|| InfoCheckSimilarTestCase {
+    },
+    "audio_sample_rate_mismatch",
+    InfoCheckSimilarTestCase {
         expected: Info {
             file_size: 600_000,
             video_frame_rate: Ratio::<u32>::new(30_000, 1_001),
@@ -400,16 +406,19 @@ static INFO_CHECK_SIMILAR_AUDIO_SAMPLE_RATE_MISMATCH: LazyLock<InfoCheckSimilarT
             audio_sample_rate: Some(48_000),
         },
         err: Some("Audio sample rate 48000 does not match 32000"),
-    });
+    }
+);
 
 #[googletest::test]
 #[rstest]
-#[case::matches(&*INFO_CHECK_SIMILAR_MATCHES)]
-#[case::frame_rate_mismatch(&*INFO_CHECK_SIMILAR_FRAME_RATE_MISMATCH)]
-#[case::frame_size_mismatch(&*INFO_CHECK_SIMILAR_FRAME_SIZE_MISMATCH)]
-#[case::audio_stream_count_mismatch(&*INFO_CHECK_SIMILAR_AUDIO_STREAM_COUNT_MISMATCH)]
-#[case::audio_sample_rate_mismatch(&*INFO_CHECK_SIMILAR_AUDIO_SAMPLE_RATE_MISMATCH)]
-fn test_info_check_similar(#[case] tc: &InfoCheckSimilarTestCase) {
+#[case::matches(function_name!())]
+#[case::frame_rate_mismatch(function_name!())]
+#[case::frame_size_mismatch(function_name!())]
+#[case::audio_stream_count_mismatch(function_name!())]
+#[case::audio_sample_rate_mismatch(function_name!())]
+fn test_info_check_similar(#[case] test_function_name: &str) {
+    let tc = INFO_CHECK_SIMILAR_TEST_CASES.get_test_case(test_function_name);
+
     let expected = UnvalidatedInfo::from(tc.expected).validate().unwrap();
     let comparison = UnvalidatedInfo::from(tc.comparison).validate().unwrap();
     match tc.err {
