@@ -8,10 +8,12 @@
         "Gruntfuggly.todo-tree",
         "KalimahApps.tabaqa",
         "mitsuhiko.insta",
-        "ms-vscode.cpptools",
+        "ms-azuretools.vscode-docker",
+        "ms-vscode.cmake-tools",
         // Live Preview is required by ryanluker.vscode-coverage-gutters
         "ms-vscode.live-server",
         "ms-vscode.powershell",
+        "mutantdino.resourcemonitor",
         "nefrob.vscode-just-syntax",
         "rust-lang.rust-analyzer",
         "ryanluker.vscode-coverage-gutters",

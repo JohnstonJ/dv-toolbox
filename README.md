@@ -4,9 +4,56 @@ dv-toolbox provides a set of tools for analyzing and repairing [DV](https://en.w
 
 ## Local development
 
+Unless you specifically need to test changes against a particular platform, it's recommended to develop for Linux.  Debug build compiling and linking is the fastest there.
+
+### Linux
+
+A quick start for developing and building Linux binaries using the provided [Development Container](.devcontainer/devcontainer.json) with Visual Studio Code is below.  This will isolate the development toolchain to a Docker container.
+
+Supported hosts:
+
+- CPU architecture:
+  - `amd64`
+- Operating systems:
+  - Windows
+  - Linux
+
+At this time, macOS on `arm64` isn't supported yet as a host, but it would be relatively easy to adapt the project to support it.
+
+1. Windows hosts: install [WSL 2](https://learn.microsoft.com/en-us/windows/wsl/install).  (Docker Desktop can also use Hyper-V, but it's basically [deprecated](https://www.docker.com/blog/docker-hearts-wsl-2/).)
+
+2. Install Docker [Desktop](https://docs.docker.com/desktop/) (Mac/Windows/Linux) or [Engine](https://docs.docker.com/engine/install/) (Linux only) by following the installation instructions.
+
+3. Follow the instructions for [Visual Studio Code](#visual-studio-code) to open the project there.  This will build and run the docker image/container used for development.
+
+Connection options when using the Dev Container:
+
+- Open a terminal in Visual Studio Code as normal
+- Run a shell in the running container:
+
+  ```bash
+  # List docker containers
+  docker ps
+  # Open a shell in the container you identified as the one started by VS Code
+  docker exec -it <container ID or name> bash
+  ```
+
+- Connect to a graphical environment by navigating to [http://localhost:6080/](http://localhost:6080/).
+
 ### Windows
 
 A quick start for developing and building Windows binaries using the provided [Vagrantfile](Vagrantfile) is below.  Using Vagrant will isolate the development toolchain to a virtual machine running an evaluation copy of Windows.  Both Visual Studio Code and Visual Studio Community are set up for development.
+
+Supported hosts:
+
+- CPU architectures:
+  - `amd64` only
+  - Not practical to support at this time: `arm64` processors due to lack of Vagrant support.
+- Operating systems:
+  - Windows
+  - Linux (any distribution supported by Vagrant)hosts with `amd64` CPU architecture.
+
+Instructions:
 
 1. Install [Vagrant](https://developer.hashicorp.com/vagrant/downloads) from the downloads page.
 
@@ -30,21 +77,25 @@ A quick start for developing and building Windows binaries using the provided [V
 
     Vagrant will automatically choose a provider based on the [default provider search procedure](https://developer.hashicorp.com/vagrant/docs/providers/basic_usage#default-provider), but you can specify a different one using `--provider`.  If the SMB synced folder is used, you'll be asked to enter your username and password for the host PC.
 
-6. You can connect to the VM using Remote Desktop.  Locate the IP address in Hyper-V Manager.  Alternatively, you can connect to the VM directly from Hyper-V Manager.  The username and password are both `vagrant`.
+6. Connection options:
+    - [Visual Studio Code](#visual-studio-code): most of the time, you'll connect remotely to the container from the host using Visual Studio Code, as documented in the linked section.
+    - Remote Desktop:  Locate the IP address in Hyper-V Manager and connect using Remote Desktop.
+    - Directly work on the VM's display output: connect to the VM directly from Hyper-V Manager.
+    - SSH: you can connect using SSH.  Using Windows PowerShell is required for the mounted repository to work.
+      1. Run `vagrant ssh-config` and add the SSH configuration to your `~/.ssh/config` file.  You may wish to rename the `Host` from `default` to something more specific.  We'll assume you call the host `dv-toolbox`.
+      2. Test the SSH connection by running:
 
-7. Alternatively, you can connect using SSH.
-    1. Run `vagrant ssh-config` and add the SSH configuration to your `~/.ssh/config` file.  You may wish to rename the `Host` from `default` to something more specific.  We'll assume you call the host `dv-toolbox`.
-    2. Test the SSH connection by running:
+          ```PowerShell
+          ssh dv-toolbox powershell
+          # <log in using username and password of: vagrant>
+          ```
 
-        ```PowerShell
-        ssh dv-toolbox
-        # <log in using username and password of: vagrant>
-        ```
+      3. Once logged in, test that `dir R:\dv-toolbox` shows the contents of the repository.
+      4. If the virtual machine is restarted and gets a different IP address, you will have to repeat the SSH configuration step.
 
-    3. Once logged in, test that `dir R:\dv-toolbox` shows the contents of the repository.
-    4. If the virtual machine is restarted and gets a different IP address, you will have to repeat the SSH configuration step.
+    When connecting, the username and password are both `vagrant`.
 
-8. When you're finished, the virtual machine can be destroyed:
+7. When you're finished, the virtual machine can be destroyed:
 
     ```PowerShell
     vagrant destroy
@@ -54,7 +105,6 @@ A quick start for developing and building Windows binaries using the provided [V
 
 Performance notes:
 
-- Increase the CPU count for the virtual machine to an appropriate number.
 - Use [Winaero Tweaker] inside the virtual machine to disable Microsoft Defender / Windows Security.
 - On the host PC, be sure to add the project directory as an exclusion to Windows Security.
 
@@ -75,33 +125,42 @@ Most common tasks:
 
 ### Visual Studio Code
 
-This project uses the [tabaqa](https://marketplace.visualstudio.com/items?itemName=KalimahApps.tabaqa) extension to merge user settings, repo-committed settings, and auto-generated settings into a final `.vscode/settings.json` file.  The rust-analyzer extension will not work correctly without this mechanism.
+1. Install [Visual Studio Code](https://code.visualstudio.com/download) on your host.  (You can also use it [portably](https://code.visualstudio.com/docs/editor/portable).)
 
-#### Before opening Visual Studio Code for the first time
+   - If developing for Windows, you may skip this step if you want to run the Visual Studio Code inside the virtual machine using Remote Desktop.
 
-1. Open a shell to the project directory in the development environment:
-    - Windows virtual machine:  follow the above instructions to connect via SSH, and then run `cd R:\dv-toolbox`.  Alternatively, do so in a terminal window from the Windows desktop inside the virtual machine.
-2. Run the following command to set up the environment variables for the rust-analyzer extension:
+2. Install the appropriate extension on the host:
 
-    ```bash
-    just vscode-setup
-    ```
+   - Windows development via Vagrant: install the [Remote - SSH](https://code.visualstudio.com/docs/remote/ssh#_installation) extension via the linked instructions.
+     - You can skip this if you are running Visual Studio Code inside the VM using Remote Desktop.
+   - Linux development via Development Containers: install the [Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers#_installation) extension via the linked instructions.
 
-#### Starting Visual Studio Code
+3. Windows development when using Vagrant: set up SSH access as described in the section above.
 
-Once the virtual machine is running, enter an IDE as follows:
+4. Open the project in Visual Studio Code:
 
-- Using Visual Studio Code in the virtual machine: double-click the icon on the desktop for that, and then install recommended extensions when prompted.
+   - Windows development via Vagrant - pick one of these alternatives:
+     - Follow the [instructions](https://code.visualstudio.com/docs/remote/ssh#_connect-to-a-remote-host) to connect to the guest VM via SSH from the Visual Studio Code instance running on the host.  Open the folder at `R:\dv-toolbox`.
+     - Alternatively, run the full VS Code GUI inside the VM using Remote Desktop.  Connect to the VM using Remote Desktop and double-click the shortcut icon on the desktop to open the project.
+   - Linux development via Dev Containers: run the **Dev Containers: Open Folder in Container** command, and open the project.
 
-- Using Visual Studio Code remotely:
+5. Open the terminal in Visual Studio Code and run the following command:
 
-    1. Set up SSH as described above.
+   ```bash
+   just vscode-setup
+   ```
 
-    2. On your host PC, install Visual Studio Code with the Remote - SSH extension if you haven't already.  Follow the [instructions](https://code.visualstudio.com/docs/remote/ssh#_connect-to-a-remote-host) to connect to the guest VM.
+6. Install the extensions that are recommended by the workplace.
 
-    3. Open the folder at `R:\dv-toolbox`.  Install recommended extensions when prompted.
+7. Install these additional extensions, depending on your platform.  This will enable Rust/C++ debugging, as well as C++ editing (e.g. for viewing FFmpeg source code):
+   - Windows development: [C/C++ for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools), from Microsoft
+   - Linux development
+     - [CodeLLDB](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb), from Vadim Chugunov
+     - [clangd](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd), from LLVM
 
-To reduce the number of full rebuilds that happen when switching between builds/tests invoked from Visual Studio Code and commands invoked from the terminal via the justfile or other commands, set environment variable `RUSTC_BOOTSTRAP=1` in your terminal.  This is due to [this issue](https://github.com/rust-lang/rust-analyzer/issues/17149#issuecomment-2080396613)  Note that this should not be done for final debug/release builds or in CI because we don't actually want a dependency on nightly features.
+8. Make a trivial change to `.vscode/tabaqa.json` and save it.  This will trigger tabaqa to regenerate the `.vscode/settings.json` file with settings for the newly-installed extensions.  Verify that a new `.vscode/settings.json` file now includes the settings in the generated `.vscode/rust-environment.json` file.  The latter was generated by `just vscode-setup`.
+
+   Explanation: This project uses the [tabaqa](https://marketplace.visualstudio.com/items?itemName=KalimahApps.tabaqa) extension to merge user settings, repo-committed settings, and auto-generated settings into a final `.vscode/settings.json` file.  The rust-analyzer extension will not work correctly without this mechanism.
 
 ### Visual Studio Community
 

@@ -3,8 +3,12 @@ expand = ["bin", "cargo-expand"]
 insta = ["bin", "cargo-insta"]
 llvm-cov = ["bin", "cargo-llvm-cov"]
 
-[build]
+[target.'cfg(target_os = "windows")']
 rustflags = ["-C", "target-feature=+crt-static"]
+
+[target.'cfg(target_os = "linux")']
+linker = "clang"
+rustflags = ["-C", "link-arg=-fuse-ld=mold"]
 
 [env]
 # Ideally we'd set more variables here, but the values we need to set vary by profile/platform.

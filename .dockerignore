@@ -1,0 +1,8 @@
+# The Dockerfile is for continuous integration and for local testing.  However, it doesn't actually
+# do the building as part of the Dockerfile itself - it just sets up tools.  Therefore, we only
+# need a very limited context.
+
+# Exclude everything
+*
+
+# Then, include only the individual files we need.

@@ -1,0 +1,49 @@
+{
+    "$schema": "https://raw.githubusercontent.com/devcontainers/spec/refs/heads/main/schemas/devContainer.schema.json",
+    "name": "Main Debian Dev Container",
+    "build": {
+        "dockerfile": "../Dockerfile",
+        "target": "dev"
+    },
+    "mounts": [
+        // Set up dedicated volumes for intermediate & output files, because:
+        // 1.  Avoid conflicts if the user was also building files on the host or another VM (e.g.
+        //     Vagrant).
+        // 2.  Improved performance on non-Linux hosts (e.g. Docker Desktop on Windows/macOS).
+        // https://code.visualstudio.com/remote/advancedcontainers/improve-performance#_use-a-targeted-named-volume
+        "source=${localWorkspaceFolderBasename}-bin,target=${containerWorkspaceFolder}/.bin,type=volume",
+        "source=${localWorkspaceFolderBasename}-target,target=${containerWorkspaceFolder}/target,type=volume",
+        "source=${localWorkspaceFolderBasename}-vcpkg_installed,target=${containerWorkspaceFolder}/vcpkg_installed,type=volume"
+    ],
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils": {
+            // Keep things simple for now
+            "installZsh": "false",
+            "installOhMyZsh": "false",
+            "username": "none"
+        },
+        "ghcr.io/devcontainers/features/desktop-lite": {
+            "password": "noPassword",
+            "webPort": "6080",
+            "vncPort": "5901"
+        }
+    },
+    "forwardPorts": [
+        5901,
+        6080
+    ],
+    "portsAttributes": {
+        "5901": {
+            "label": "VNC server",
+            "onAutoForward": "silent"
+        },
+        "6080": {
+            "label": "noVNC web server",
+            "onAutoForward": "notify"
+        }
+    },
+    // Enable debugging
+    "capAdd": [
+        "SYS_PTRACE"
+    ]
+}
