@@ -16,6 +16,14 @@
             100
         ],
         "files.autoSave": "onFocusChange",
+        "files.exclude": {
+            ".vagrant/": true
+        },
+        "files.watcherExclude": {
+            ".vagrant/": true,
+            "target/": true,
+            "vcpkg_installed/": true
+        },
         "rust-analyzer.cargo.targetDir": true,
         "rust-analyzer.debug.sourceFileMap": "auto",
         "rust-analyzer.inlayHints.maxLength": null,
