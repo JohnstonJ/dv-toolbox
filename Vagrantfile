@@ -218,7 +218,7 @@ Vagrant.configure("2") do |config|
                       type: "shell",
                       inline: POWERSHELL_HEADER + <<~'EOT'
     # From https://github.com/dustinblackman/cargo-run-bin?tab=readme-ov-file#install
-    cargo install cargo-run-bin
+    cargo binstall cargo-run-bin
     Check-Exit-Code
   EOT
 
