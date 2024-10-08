@@ -14,8 +14,16 @@ version.workspace = true
 workspace = true
 
 [dependencies]
-derive_more = { workspace = true, features = ["deref", "deref_mut", "from"] }
-garde = { workspace = true, features = ["derive", "regex"] }
+arbitrary-int = { workspace = true, features = ["std", "serde"] }
+bitbybit = { workspace = true }
+derive_more = { workspace = true, features = [
+    "as_ref",
+    "deref",
+    "deref_mut",
+    "from",
+    "try_from",
+] }
+garde = { workspace = true, features = ["derive", "regex", "serde"] }
 itertools = { workspace = true }
 libc = { workspace = true }
 num = { workspace = true }
@@ -23,10 +31,12 @@ page_size = { workspace = true }
 rsmpeg = { workspace = true }
 # Temporarily in place while we are patching rusty_ffmpeg
 rusty_ffmpeg = { workspace = true }
+serde = { workspace = true }
 snafu = { workspace = true }
 stdext = { workspace = true }
 
 [dev-dependencies]
+data-encoding = { workspace = true }
 insta = { workspace = true }
 googletest = { workspace = true }
 regex = { workspace = true }

@@ -12,6 +12,7 @@
 mod ffutil;
 pub mod file;
 mod ioutil;
+pub mod pack;
 
 #[cfg(test)]
 mod testutil;

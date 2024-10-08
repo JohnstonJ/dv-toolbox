@@ -5,6 +5,7 @@ use std::{
     sync::LazyLock,
 };
 
+use data_encoding::{Encoding, HEXUPPER_PERMISSIVE};
 use derive_more::{Deref, From};
 use googletest::prelude::*;
 use regex::Regex;
@@ -12,6 +13,21 @@ use regex::Regex;
 /// Directory containing test-related data files.
 pub(crate) fn test_resource(path: &str) -> PathBuf {
     [env!("CARGO_MANIFEST_DIR"), "resources/test", path].iter().collect()
+}
+
+static PADDED_HEX: LazyLock<Encoding> = LazyLock::new(|| {
+    let mut spec = HEXUPPER_PERMISSIVE.specification();
+    spec.ignore = String::from(" ");
+    spec.encoding().unwrap()
+});
+
+/// Parse a string like "AA BB CC DD EE" into a byte array
+pub(crate) fn from_hex<const N: usize>(value: &str) -> [u8; N] {
+    PADDED_HEX
+        .decode(value.as_bytes())
+        .expect("value should be a valid hexadecimal string")
+        .try_into()
+        .unwrap()
 }
 
 /// Map of test case name to test case data.  See the [`test_case_map`] macro for an example of how
@@ -179,4 +195,15 @@ pub(crate) fn assert_all_test_cases_ran(
         empty(),
         "These test cases are not referenced by the test function with a #[case] attribute."
     );
+}
+
+mod tests {
+    use googletest::expect_that;
+
+    use super::*;
+
+    #[googletest::test]
+    fn test_from_hex() {
+        expect_that!(from_hex("AA BB CC"), eq([0xAA, 0xBB, 0xCC]));
+    }
 }
