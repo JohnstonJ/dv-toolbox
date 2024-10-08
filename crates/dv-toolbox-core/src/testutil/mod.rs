@@ -1,7 +1,6 @@
 use core::str;
 use std::{
     collections::{HashMap, HashSet},
-    ops,
     path::PathBuf,
     sync::LazyLock,
 };

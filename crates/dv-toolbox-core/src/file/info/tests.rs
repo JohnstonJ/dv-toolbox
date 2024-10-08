@@ -1,9 +1,5 @@
 use core::str;
-use std::{
-    collections::HashMap,
-    fs::File,
-    sync::{LazyLock, Mutex},
-};
+use std::fs::File;
 
 use googletest::prelude::*;
 use num::rational::Ratio;

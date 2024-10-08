@@ -8,7 +8,7 @@
 // NOTE: Dead code and unused imports are sometimes allowed while this crate is under development.
 // Eventually, they should be removed.
 
-#![allow(dead_code, unused_imports)]
+#[allow(dead_code)]
 mod ffutil;
 pub mod file;
 mod ioutil;

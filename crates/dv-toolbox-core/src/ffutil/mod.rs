@@ -7,5 +7,6 @@ mod format;
 mod rational;
 
 pub(crate) use avio_context::*;
+#[allow(unused_imports)]
 pub(crate) use format::*;
 pub(crate) use rational::*;
