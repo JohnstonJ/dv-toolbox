@@ -32,6 +32,7 @@ rstest = "0.23.0"
 # Temporarily in place while we are patching rusty_ffmpeg
 rusty_ffmpeg = { version = "0.16.1", features = ["ffmpeg7"] }
 serde = "1.0.210"
+serde_test = "1.0.177"
 snafu = { version = "0.8.5", features = ["rust_1_81"] }
 stdext = "0.3.3"
 

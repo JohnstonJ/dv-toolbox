@@ -14,6 +14,7 @@ use garde::{
 };
 use serde::{de::DeserializeOwned, Serialize};
 use snafu::prelude::*;
+pub use time::*;
 pub use types::*;
 
 use crate::file;
@@ -21,7 +22,9 @@ use crate::file;
 mod binary_group;
 #[cfg(test)]
 mod testutil;
+mod time;
 mod types;
+mod util;
 
 /// Unvalidated contents of a DV data pack.
 ///

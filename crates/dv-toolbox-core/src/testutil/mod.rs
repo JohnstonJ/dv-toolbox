@@ -9,6 +9,9 @@ use data_encoding::{Encoding, HEXUPPER_PERMISSIVE};
 use derive_more::{Deref, From};
 use googletest::prelude::*;
 use regex::Regex;
+pub(crate) use test_cases::*;
+
+mod test_cases;
 
 /// Directory containing test-related data files.
 pub(crate) fn test_resource(path: &str) -> PathBuf {

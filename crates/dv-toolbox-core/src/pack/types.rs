@@ -155,17 +155,31 @@ macro_rules! type_macro {
 
 // List all the possible pack types
 type_macro! {
+    /// The timecode data showing elapsed time in the title at the tape position where this
+    /// was recorded.
+    ///
+    /// - IEC 61834-4:1998 Section 4.4 - Time Code (TITLE)
+    /// - SMPTE 306M-2002 Section 9.2.1 - Time code pack (TC)
+    TitleTimecode(0x13, super::TitleTimecode),
     /// Additional binary group data associated with the [`Pack::TitleTimecode`] pack.
     ///
     /// - IEC 61834-4:1998 Section 4.5 - Binary Group (TITLE)
     /// - SMPTE 306M-2002 Section 9.2.2 - Binary group pack (BG)
     TitleBinaryGroup(0x14, super::BinaryGroup),
 
+    /// The time when audio data is recorded.
+    ///
+    /// - IEC 61834-4:1998 Section 8.4 - Rec Time (AAUX)
+    AAUXRecordingTime(0x53, super::RecordingTime),
     /// Additional binary group data associated with the [`Pack::AAUXRecordingTime`] pack.
     ///
     /// - IEC 61834-4:1998 Section 8.5 - Binary Group (AAUX)
     AAUXBinaryGroup(0x54, super::BinaryGroup),
 
+    /// The time when video data is recorded.
+    ///
+    /// - IEC 61834-4:1998 Section 9.4 - Rec Time (VAUX)
+    VAUXRecordingTime(0x63, super::RecordingTime),
     /// Additional binary group data associated with the [`Pack::VAUXRecordingTime`] pack.
     ///
     /// - IEC 61834-4:1998 Section 9.5 - Binary Group (VAUX)
