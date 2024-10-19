@@ -10,21 +10,6 @@ use crate::{
     testutil::from_hex,
 };
 
-#[derive(Debug)]
-pub(crate) struct PackBinaryTestCase<'a> {
-    pub(crate) input: &'a str,
-    pub(crate) parsed: Option<Pack>,
-    pub(crate) err: Option<&'a str>,
-    pub(crate) output: Option<&'a str>,
-    pub(crate) ctx: PackContext,
-}
-
-impl<'a> Default for PackBinaryTestCase<'a> {
-    fn default() -> Self {
-        Self { input: "", parsed: None, err: None, output: None, ctx: *NTSC }
-    }
-}
-
 pub(crate) static NTSC: LazyLock<PackContext> = LazyLock::new(|| PackContext {
     file_info: UnvalidatedInfo::new(Info {
         file_size: 120_000,
@@ -52,6 +37,21 @@ pub(crate) static PAL: LazyLock<PackContext> = LazyLock::new(|| PackContext {
 /// Shorthand function useful for constructing a validated pack from an unvalidated pack literal.
 pub(crate) fn validated<T: PackData>(unvalidated_pack: T, ctx: PackContext) -> ValidPack<T> {
     Unvalidated::new(unvalidated_pack).validate_with(&ctx).unwrap().into()
+}
+
+#[derive(Debug)]
+pub(crate) struct PackBinaryTestCase<'a> {
+    pub(crate) input: &'a str,
+    pub(crate) parsed: Option<Pack>,
+    pub(crate) err: Option<&'a str>,
+    pub(crate) output: Option<&'a str>,
+    pub(crate) ctx: PackContext,
+}
+
+impl<'a> Default for PackBinaryTestCase<'a> {
+    fn default() -> Self {
+        Self { input: "", parsed: None, err: None, output: None, ctx: *NTSC }
+    }
 }
 
 /// Test round trip of a pack: deserialize from binary, check the result, and then back to binary.

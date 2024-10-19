@@ -20,6 +20,7 @@ derive_more = { workspace = true, features = [
     "as_ref",
     "deref",
     "deref_mut",
+    "display",
     "from",
     "try_from",
 ] }

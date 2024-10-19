@@ -60,7 +60,7 @@ pub type RawPack = [u8; 5];
 ///
 /// (Newtype on the [`Valid`] type that restores some of the derived functionality.)
 #[derive(Debug, Clone, Copy, AsRef, AsMut, Deref, DerefMut, From)]
-pub struct ValidPack<T: PackData>(Valid<T>);
+pub struct ValidPack<T: PackData>(pub Valid<T>);
 
 impl<T: PackData> PartialEq for ValidPack<T> {
     fn eq(&self, other: &Self) -> bool {

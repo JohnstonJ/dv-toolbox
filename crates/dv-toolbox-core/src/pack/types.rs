@@ -16,6 +16,10 @@ macro_rules! type_macro {
         /// Possible DV pack types
         ///
         /// Use the [`From`] trait implementations to map to/from a raw pack header byte.
+        ///
+        /// For more information about the contents of a pack, refer to the documentation of
+        /// the corresponding struct type wrapped by the enumeration.  The enum variants themselves
+        /// only have minimal documentation.
         #[derive(Debug, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
         #[serde(tag = "pack_type", content = "unknown_value")]
         pub enum Type {
@@ -49,7 +53,8 @@ macro_rules! type_macro {
         /// DV pack data of any type.
         ///
         /// For more information about the contents of a pack, refer to the documentation of
-        /// the corresponding struct type wrapped by the enumeration.
+        /// the corresponding struct type wrapped by the enumeration.  The enum variants themselves
+        /// only have minimal documentation.
         #[derive(Debug, PartialEq, Eq, Clone, Copy)]
         pub enum Pack {
             $($(#[$attr])* $name(super::ValidPack<$data_type>),)*
@@ -151,17 +156,26 @@ macro_rules! type_macro {
 // List all the possible pack types
 type_macro! {
     /// Additional binary group data associated with the [`Pack::TitleTimecode`] pack.
+    ///
+    /// - IEC 61834-4:1998 Section 4.5 - Binary Group (TITLE)
+    /// - SMPTE 306M-2002 Section 9.2.2 - Binary group pack (BG)
     TitleBinaryGroup(0x14, super::BinaryGroup),
 
     /// Additional binary group data associated with the [`Pack::AAUXRecordingTime`] pack.
+    ///
+    /// - IEC 61834-4:1998 Section 8.5 - Binary Group (AAUX)
     AAUXBinaryGroup(0x54, super::BinaryGroup),
 
     /// Additional binary group data associated with the [`Pack::VAUXRecordingTime`] pack.
+    ///
+    /// - IEC 61834-4:1998 Section 9.5 - Binary Group (VAUX)
     VAUXBinaryGroup(0x64, super::BinaryGroup),
 
     /// No information
     ///
     /// There is no pack in this position, or it dropped out.
+    ///
+    /// - IEC 61834-4:1998 Section 12.16 - No Info: No information (SOFT MODE)
     NoInfo(0xFF, NoInfo),
 }
 

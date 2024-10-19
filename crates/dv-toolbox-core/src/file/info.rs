@@ -1,5 +1,6 @@
 use std::{cell::RefCell, io, rc::Rc};
 
+use derive_more::derive::Display;
 use garde::{Unvalidated, Valid, Validate};
 use itertools::Itertools;
 use num::{rational::Ratio, CheckedMul, ToPrimitive};
@@ -15,7 +16,7 @@ mod tests;
 ///
 /// The choice of system determines the entire layout of a DV file, as well as how many parts of
 /// the DV file are interpreted.
-#[derive(Debug, Eq, PartialEq, Clone, Copy)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy, Display)]
 pub enum System {
     /// IEC 61834-2: SD format for 525-60 system
     ///
@@ -24,6 +25,7 @@ pub enum System {
     /// Also defined in SMPTE 306M-2002
     ///
     /// Commonly known as: Standard Definition NTSC, 720x480 resolution
+    #[display("525-60")]
     Sys525_60,
 
     /// IEC 61834-2: SD format for 625-50 system
@@ -33,6 +35,7 @@ pub enum System {
     /// Also defined in SMPTE 306M-2002
     ///
     /// Commonly known as: Standard Definition PAL/SECAM, 720x576 resolution
+    #[display("625-50")]
     Sys625_50,
 }
 
