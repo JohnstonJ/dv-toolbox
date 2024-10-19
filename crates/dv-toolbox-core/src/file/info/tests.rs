@@ -1,6 +1,7 @@
 use core::str;
 use std::fs::File;
 
+use display_error_chain::ErrorChainExt;
 use googletest::prelude::*;
 use num::rational::Ratio;
 use rstest::rstest;
@@ -301,7 +302,7 @@ fn test_info_validation(#[case] test_function_name: &str) {
     if let Some(ref derived) = tc.derived {
         derived.assert_info(&res.unwrap());
     } else {
-        expect_that!(res, err(displays_as(eq(tc.err.unwrap()))));
+        expect_that!(res.map_err(|e| e.chain().to_string()), err(eq(tc.err.unwrap())));
     }
 }
 
@@ -418,7 +419,10 @@ fn test_info_check_similar(#[case] test_function_name: &str) {
     let expected = UnvalidatedInfo::from(tc.expected).validate().unwrap();
     let comparison = UnvalidatedInfo::from(tc.comparison).validate().unwrap();
     match tc.err {
-        Some(e) => expect_that!(expected.check_similar(&comparison), err(displays_as(eq(e)))),
+        Some(e) => expect_that!(
+            expected.check_similar(&comparison).map_err(|e| e.chain().to_string()),
+            err(eq(e))
+        ),
         None => expect_that!(expected.check_similar(&comparison), ok(eq(&()))),
     };
 }

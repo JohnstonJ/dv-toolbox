@@ -158,6 +158,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "display-error-chain"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7d305e5a3904ee14166439a70feef04853c1234226dbb27ede127b88dc5a4a9d"
+
+[[package]]
 name = "dv-toolbox-core"
 version = "0.1.0"
 dependencies = [
@@ -165,6 +171,7 @@ dependencies = [
  "bitbybit",
  "data-encoding",
  "derive_more",
+ "display-error-chain",
  "garde",
  "googletest",
  "insta",

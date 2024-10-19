@@ -1,5 +1,6 @@
 use std::sync::LazyLock;
 
+use display_error_chain::ErrorChainExt;
 use googletest::prelude::*;
 use num::rational::Ratio;
 
@@ -62,7 +63,7 @@ pub(crate) fn run_pack_binary_test_case(tc: &PackBinaryTestCase) {
     let (deserialized, err) = Pack::from_raw(&input, &tc.ctx);
     match tc.err {
         None => expect_that!(err, none()),
-        Some(msg) => expect_that!(err, some(displays_as(eq(msg)))),
+        Some(msg) => expect_that!(err.map(|e| e.chain().to_string()), some(eq(msg))),
     };
     let expected_pack = match tc.parsed {
         // Leaving tc.parsed as None is a shortcut that avoids retyping the Invalid pack.

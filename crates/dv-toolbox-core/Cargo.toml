@@ -37,6 +37,7 @@ stdext = { workspace = true }
 
 [dev-dependencies]
 data-encoding = { workspace = true }
+display-error-chain = { workspace = true }
 insta = { workspace = true }
 googletest = { workspace = true }
 regex = { workspace = true }
