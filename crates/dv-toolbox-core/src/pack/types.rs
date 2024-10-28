@@ -167,6 +167,10 @@ type_macro! {
     /// - SMPTE 306M-2002 Section 9.2.2 - Binary group pack (BG)
     TitleBinaryGroup(0x14, super::BinaryGroup),
 
+    /// The date when audio data is recorded.
+    ///
+    /// - IEC 61834-4:1998 Section 8.3 - Rec Date (AAUX)
+    AAUXRecordingDate(0x52, super::RecordingDate),
     /// The time when audio data is recorded.
     ///
     /// - IEC 61834-4:1998 Section 8.4 - Rec Time (AAUX)
@@ -176,6 +180,10 @@ type_macro! {
     /// - IEC 61834-4:1998 Section 8.5 - Binary Group (AAUX)
     AAUXBinaryGroup(0x54, super::BinaryGroup),
 
+    /// The date when video data is recorded.
+    ///
+    /// - IEC 61834-4:1998 Section 9.3 - Rec Date (VAUX)
+    VAUXRecordingDate(0x62, super::RecordingDate),
     /// The time when video data is recorded.
     ///
     /// - IEC 61834-4:1998 Section 9.4 - Rec Time (VAUX)

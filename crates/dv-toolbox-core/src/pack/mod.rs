@@ -7,6 +7,7 @@
 //! [`Pack::to_raw`] function.
 
 pub use binary_group::*;
+pub use date::*;
 use derive_more::derive::{AsMut, AsRef, Deref, DerefMut, From};
 use garde::{
     validate::{Valid, Validate},
@@ -20,11 +21,13 @@ pub use types::*;
 use crate::file;
 
 mod binary_group;
-#[cfg(test)]
-mod testutil;
+mod date;
 mod time;
 mod types;
 mod util;
+
+#[cfg(test)]
+mod testutil;
 
 /// Unvalidated contents of a DV data pack.
 ///

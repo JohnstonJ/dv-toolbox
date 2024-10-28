@@ -16,6 +16,10 @@ workspace = true
 [dependencies]
 arbitrary-int = { workspace = true, features = ["std", "serde"] }
 bitbybit = { workspace = true }
+chrono = { workspace = true, default-features = false, features = [
+    "serde",
+    "std",
+] }
 derive_more = { workspace = true, features = [
     "as_ref",
     "deref",
