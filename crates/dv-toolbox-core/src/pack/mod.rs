@@ -6,7 +6,9 @@
 //! [`Pack::from_raw`] function.  To serialize from a [`Pack`] back to binary, use the
 //! [`Pack::to_raw`] function.
 
+pub use aaux_source::*;
 pub use binary_group::*;
+pub use common::*;
 pub use date::*;
 use derive_more::derive::{AsMut, AsRef, Deref, DerefMut, From};
 use garde::{
@@ -20,7 +22,9 @@ pub use types::*;
 
 use crate::file;
 
+mod aaux_source;
 mod binary_group;
+mod common;
 mod date;
 mod time;
 mod types;

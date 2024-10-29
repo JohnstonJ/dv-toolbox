@@ -167,6 +167,11 @@ type_macro! {
     /// - SMPTE 306M-2002 Section 9.2.2 - Binary group pack (BG)
     TitleBinaryGroup(0x14, super::BinaryGroup),
 
+    /// Contains information about the audio stream.
+    ///
+    /// - IEC 61834-4:1998 Section 8.1 - Source (AAUX)
+    /// - SMPTE 306M-2002 Section 7.4.1 - AAUX source pack (AS)
+    AAUXSource(0x50, super::AAUXSource),
     /// The date when audio data is recorded.
     ///
     /// - IEC 61834-4:1998 Section 8.3 - Rec Date (AAUX)
