@@ -9,7 +9,7 @@ use snafu::{whatever, OptionExt, ResultExt};
 mod tests;
 
 /// Whether daylight saving time is in effect
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[bitenum(u1, exhaustive = true)]
 pub enum DaylightSavingTime {
     /// Daylight saving time is in effect
@@ -32,7 +32,7 @@ pub enum DaylightSavingTime {
 ///   - IEC 61834-4:1998 Section 8.3 - Rec Date (AAUX)
 /// - VAUX recording date
 ///   - IEC 61834-4:1998 Section 9.3 - Rec Date (VAUX)
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Validate, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Validate, Serialize, Deserialize)]
 #[garde(context(super::PackContext))]
 pub struct RecordingDate {
     /// The date of recording.

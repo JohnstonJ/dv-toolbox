@@ -36,7 +36,7 @@ mod tests;
 ///
 /// - IEC 60461:2010 (entire standard) - Time and control code
 /// - SMPTE 12M (entire standard) - Time and Control Code
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Validate)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Validate)]
 #[garde(context(super::PackContext))]
 pub struct TimeValue<FrameType: FrameTypeTrait> {
     /// The hour of the timecode, in range `[0, 23]`.
@@ -287,7 +287,7 @@ impl<'de> Deserialize<'de> for TimeValueWithRequiredFrame {
 /// the original source.
 ///
 /// - IEC 60461:2010 Section 7.3.3 - Colour frame flag
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[bitenum(u1, exhaustive = true)]
 pub enum ColorFrame {
     /// No relationship between color frame sequence and the time address.
@@ -302,7 +302,7 @@ pub enum ColorFrame {
 ///
 /// - IEC 60461:2010 Section 8.2.6 - Biphase mark polarity correction
 /// - IEC 60461:2010 Section 9.2.5 - Field mark flag
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[bitenum(u1, exhaustive = true)]
 pub enum PolarityCorrection {
     /// Bit value of zero
@@ -315,7 +315,7 @@ pub enum PolarityCorrection {
 /// Indicates the contents of the associated binary group pack.
 ///
 /// - IEC 60461:2010 Section 7.4.1 - Binary group flag assignments
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[bitenum(u3, exhaustive = true)]
 pub enum BinaryGroupFlag {
     /// The time is not referenced to an external clock, and the contents of the binary group
@@ -375,7 +375,7 @@ pub enum BinaryGroupFlag {
 /// and all following frames would have a flag value of [`BlankFlag::Discontinuous`].
 ///
 /// - IEC 61834-4:1998 Section 4.4 - Time Code (TITLE)
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[bitenum(u1, exhaustive = true)]
 pub enum BlankFlag {
     /// A timecode discontinuity exists somewhere prior to the current tape position
@@ -460,7 +460,7 @@ struct Raw625_50Timecode {
 /// Title timecode, AAUX recording time, or VAUX recording time
 ///
 /// See the [`TitleTimecode`] and [`RecordingTime`] type documentation for more details.
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Validate, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Validate, Serialize, Deserialize)]
 #[garde(context(super::PackContext))]
 pub struct Timecode<TimeType>
 where
@@ -698,7 +698,7 @@ impl super::ValidPackDataTrait<Timecode<TimeValueWithRequiredFrame>>
 ///
 /// - IEC 60461:2010 (entire standard) - Time and control code
 /// - SMPTE 12M (entire standard) - Time and Control Code
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Validate, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Validate, Serialize, Deserialize)]
 #[garde(context(super::PackContext))]
 pub struct TitleTimecode {
     /// Contains most of the title timecode

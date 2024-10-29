@@ -11,7 +11,7 @@ use crate::file::{System, ValidInfoMethods};
 mod tests;
 
 /// Quantization format of audio samples.
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[bitenum(u3, exhaustive = true)]
 #[allow(missing_docs)]
 pub enum AudioQuantization {
@@ -32,7 +32,7 @@ pub enum AudioQuantization {
 }
 
 /// Whether the audio clock was locked to the video clock.
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[bitenum(u1, exhaustive = true)]
 pub enum LockedMode {
     /// The audio clock of the recording device was locked to the video clock.
@@ -51,7 +51,7 @@ pub enum LockedMode {
 }
 
 /// Partially determines the channel layout.
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[bitenum(u1, exhaustive = true)]
 #[allow(missing_docs)]
 pub enum StereoMode {
@@ -61,7 +61,7 @@ pub enum StereoMode {
 
 /// Whether the audio in audio block channel CH1 (CH3) is related to audio in audio block
 /// channel CH2 (CH4).
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[bitenum(u1, exhaustive = true)]
 pub enum AudioBlockPairing {
     /// The audio block channels are paired with each other.
@@ -72,7 +72,7 @@ pub enum AudioBlockPairing {
 }
 
 /// Time constant of audio pre-emphasis.
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[bitenum(u1, exhaustive = true)]
 pub enum EmphasisTimeConstant {
     /// Audio pre-emphasis of 50/15 microseconds
@@ -91,7 +91,7 @@ pub enum EmphasisTimeConstant {
 ///
 /// - IEC 61834-4:1998 Section 8.1 - Source (AAUX)
 /// - SMPTE 306M-2002 Section 7.4.1 - AAUX source pack (AS)
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Validate, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Validate, Serialize, Deserialize)]
 #[garde(context(super::PackContext))]
 pub struct AAUXSource {
     // Basic audio information for a channel

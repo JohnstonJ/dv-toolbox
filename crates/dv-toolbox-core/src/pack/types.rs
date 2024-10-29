@@ -215,7 +215,7 @@ type_macro! {
 /// but the tape deck failed to read it.
 ///
 /// - IEC 61834-4:1998 Section 12.16 - No Info: No information (SOFT MODE)
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Validate, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Validate, Serialize, Deserialize)]
 #[garde(context(super::PackContext))]
 pub struct NoInfo {}
 
@@ -241,7 +241,7 @@ impl super::ValidPackDataTrait<NoInfo> for super::ValidPack<NoInfo> {
 }
 
 /// Holds the contents of an invalid or unknown pack.
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Validate, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Validate, Serialize, Deserialize)]
 #[garde(context(super::PackContext))]
 pub struct Unparsed {
     /// Contents of the invalid or unknown pack.

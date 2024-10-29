@@ -32,7 +32,7 @@ mod tests;
 ///
 /// - IEC 60461:2011 Section 7.4 - Use of the binary groups
 /// - SMPTE 12M
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Validate, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Validate, Serialize, Deserialize)]
 #[garde(context(super::PackContext))]
 pub struct BinaryGroup {
     /// The raw data of the binary groups.

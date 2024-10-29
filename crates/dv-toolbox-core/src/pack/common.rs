@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 /// - VAUX source
 ///   - IEC 61834-4:1998 Section 9.1 - Source (VAUX)
 ///   - SMPTE 306M-2002 Section 8.9.1 - VAUX source pack (VS)
-#[derive(Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[bitenum(u5, exhaustive = true)]
 #[allow(missing_docs)]
 pub enum SourceType {

@@ -6,6 +6,8 @@
 //! [`Pack::from_raw`] function.  To serialize from a [`Pack`] back to binary, use the
 //! [`Pack::to_raw`] function.
 
+use std::hash::Hash;
+
 pub use aaux_source::*;
 pub use binary_group::*;
 pub use common::*;
@@ -45,6 +47,7 @@ pub trait PackData:
     std::fmt::Debug
     + PartialEq
     + Eq
+    + Hash
     + Clone
     + Copy
     + Validate<Context = PackContext>
@@ -74,11 +77,17 @@ pub struct ValidPack<T: PackData>(pub Valid<T>);
 
 impl<T: PackData> PartialEq for ValidPack<T> {
     fn eq(&self, other: &Self) -> bool {
-        *self.0 == *other.0
+        self.0.eq(&*other.0)
     }
 }
 
 impl<T: PackData> Eq for ValidPack<T> {}
+
+impl<T: PackData> Hash for ValidPack<T> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.0.hash(state);
+    }
+}
 
 /// Trait implemented on the validated contents of a DV data pack.
 pub trait ValidPackDataTrait<T: PackData> {
