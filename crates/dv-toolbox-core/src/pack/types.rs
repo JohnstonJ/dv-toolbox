@@ -172,6 +172,11 @@ type_macro! {
     /// - IEC 61834-4:1998 Section 8.1 - Source (AAUX)
     /// - SMPTE 306M-2002 Section 7.4.1 - AAUX source pack (AS)
     AAUXSource(0x50, super::AAUXSource),
+    /// Contains some metadata about the audio stream.
+    ///
+    /// - IEC 61834-4:1998 Section 8.2 - Source control (AAUX)
+    /// - SMPTE 306M-2002 Section 7.4.2 - AAUX source control pack (ASC)
+    AAUXSourceControl(0x51, super::AAUXSourceControl),
     /// The date when audio data is recorded.
     ///
     /// - IEC 61834-4:1998 Section 8.3 - Rec Date (AAUX)

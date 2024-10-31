@@ -9,6 +9,7 @@
 use std::hash::Hash;
 
 pub use aaux_source::*;
+pub use aaux_source_control::*;
 pub use binary_group::*;
 pub use common::*;
 pub use date::*;
@@ -25,6 +26,7 @@ pub use types::*;
 use crate::file;
 
 mod aaux_source;
+mod aaux_source_control;
 mod binary_group;
 mod common;
 mod date;
