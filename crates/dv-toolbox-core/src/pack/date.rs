@@ -8,15 +8,19 @@ use snafu::{whatever, OptionExt, ResultExt};
 #[cfg(test)]
 mod tests;
 
-/// Whether daylight saving time is in effect
-#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[bitenum(u1, exhaustive = true)]
-pub enum DaylightSavingTime {
-    /// Daylight saving time is in effect
-    DaylightSavingTime = 0x0,
+super::util::required_enum! {
+    /// Whether daylight saving time is in effect
+    #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
+    pub enum DaylightSavingTime {
+        /// Daylight saving time is in effect
+        DaylightSavingTime = 0x0,
 
-    /// Daylight saving time is not in effect
-    Normal = 0x1,
+        /// Daylight saving time is not in effect
+        Normal = 0x1,
+    }
+
+    #[bitenum(u1, exhaustive = true)]
+    enum RawDaylightSavingTime;
 }
 
 /// AAUX or VAUX recording date
@@ -201,7 +205,7 @@ struct RawRecordingDate {
     #[bit(6, rw)]
     tm: u1,
     #[bit(7, rw)]
-    ds: DaylightSavingTime,
+    ds: RawDaylightSavingTime,
 
     // PC2
     #[bits(8..=11, rw)]
@@ -290,7 +294,7 @@ impl super::PackData for RecordingDate {
                 RawWeekday::NoInfo => None,
             },
             timezone,
-            daylight_saving_time: timezone.map(|_| raw.ds()),
+            daylight_saving_time: timezone.map(|_| raw.ds().into()),
             reserved: raw.reserved(),
         })
     }
@@ -311,7 +315,7 @@ impl super::ValidPackDataTrait<RecordingDate> for super::ValidPack<RecordingDate
             .with_tm(
                 tz_thirty_minute.map_or(u1::MAX, |tz_thirty_minute| !u1::new(tz_thirty_minute)),
             )
-            .with_ds(self.daylight_saving_time.unwrap_or(DaylightSavingTime::Normal))
+            .with_ds(self.daylight_saving_time.unwrap_or(DaylightSavingTime::Normal).into())
             .with_day_units(
                 self.date.map_or(u4::MAX, |d| u4::new(u8::try_from(d.day() % 10).unwrap())),
             )

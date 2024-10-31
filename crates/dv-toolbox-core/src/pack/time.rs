@@ -283,106 +283,122 @@ impl<'de> Deserialize<'de> for TimeValueWithRequiredFrame {
     }
 }
 
-/// Indicates whether color frame identification was intentionally applied to the timecode by
-/// the original source.
-///
-/// - IEC 60461:2010 Section 7.3.3 - Colour frame flag
-#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[bitenum(u1, exhaustive = true)]
-pub enum ColorFrame {
-    /// No relationship between color frame sequence and the time address.
-    Unsynchronized = 0x0,
+super::util::required_enum! {
+    /// Indicates whether color frame identification was intentionally applied to the timecode by
+    /// the original source.
+    ///
+    /// - IEC 60461:2010 Section 7.3.3 - Colour frame flag
+    #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
+    pub enum ColorFrame {
+        /// No relationship between color frame sequence and the time address.
+        Unsynchronized = 0x0,
 
-    /// Color frames are identified by the time address, as applied by the original video source.
-    Synchronized = 0x1,
+        /// Color frames are identified by the time address, as applied by the original video source.
+        Synchronized = 0x1,
+    }
+
+    #[bitenum(u1, exhaustive = true)]
+    enum RawColorFrame;
 }
 
-/// Used in linear time code (LTC) to ensure that the code word has an even number of 0 bits.
-/// For vertical interval time code (VITC), this indicates the field flag.
-///
-/// - IEC 60461:2010 Section 8.2.6 - Biphase mark polarity correction
-/// - IEC 60461:2010 Section 9.2.5 - Field mark flag
-#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[bitenum(u1, exhaustive = true)]
-pub enum PolarityCorrection {
-    /// Bit value of zero
-    Even = 0x0,
+super::util::required_enum! {
+    /// Used in linear time code (LTC) to ensure that the code word has an even number of 0 bits.
+    /// For vertical interval time code (VITC), this indicates the field flag.
+    ///
+    /// - IEC 60461:2010 Section 8.2.6 - Biphase mark polarity correction
+    /// - IEC 60461:2010 Section 9.2.5 - Field mark flag
+    #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
+    pub enum PolarityCorrection {
+        /// Bit value of zero
+        Even = 0x0,
 
-    /// Bit value of one
-    Odd = 0x1,
+        /// Bit value of one
+        Odd = 0x1,
+    }
+
+    #[bitenum(u1, exhaustive = true)]
+    enum RawPolarityCorrection;
 }
 
-/// Indicates the contents of the associated binary group pack.
-///
-/// - IEC 60461:2010 Section 7.4.1 - Binary group flag assignments
-#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[bitenum(u3, exhaustive = true)]
-pub enum BinaryGroupFlag {
-    /// The time is not referenced to an external clock, and the contents of the binary group
-    /// are unspecified.
+super::util::required_enum! {
+    /// Indicates the contents of the associated binary group pack.
     ///
-    /// - IEC 60461:2010 Section 7.4.2 - Character set not specified and unspecified clock time
-    TimeUnspecifiedGroupUnspecified = 0b000,
+    /// - IEC 60461:2010 Section 7.4.1 - Binary group flag assignments
+    #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
+    pub enum BinaryGroupFlag {
+        /// The time is not referenced to an external clock, and the contents of the binary group
+        /// are unspecified.
+        ///
+        /// - IEC 60461:2010 Section 7.4.2 - Character set not specified and unspecified clock time
+        TimeUnspecifiedGroupUnspecified = 0b000,
 
-    /// The time is not referenced to an external clock, and the contents of the binary group
-    /// contain an 8-bit ISO/IEC 646 or ISO/IEC 2022 character set.
-    ///
-    /// - IEC 60461:2010 Section 7.4.3 - Eight-bit character set and unspecified clock time
-    TimeUnspecifiedGroup8BitCodes = 0b001,
+        /// The time is not referenced to an external clock, and the contents of the binary group
+        /// contain an 8-bit ISO/IEC 646 or ISO/IEC 2022 character set.
+        ///
+        /// - IEC 60461:2010 Section 7.4.3 - Eight-bit character set and unspecified clock time
+        TimeUnspecifiedGroup8BitCodes = 0b001,
 
-    /// The time is not referenced to an external clock, and the contents of the binary group
-    /// contain time zone information according to SMPTE 309M.
-    ///
-    /// - IEC 60461:2010 Section 7.4.4 - Date/time zone and unspecified clock time
-    TimeUnspecifiedGroupDateTimeZone = 0b100,
+        /// The time is not referenced to an external clock, and the contents of the binary group
+        /// contain time zone information according to SMPTE 309M.
+        ///
+        /// - IEC 60461:2010 Section 7.4.4 - Date/time zone and unspecified clock time
+        TimeUnspecifiedGroupDateTimeZone = 0b100,
 
-    /// The time is not referenced to an external clock, and the contents of the binary group
-    /// contain complex data formatted according to SMPTE 262M.
-    ///
-    /// - IEC 60461:2010 Section 7.4.5 - Page/line multiplex system and unspecified clock time
-    TimeUnspecifiedGroupPageLine = 0b101,
+        /// The time is not referenced to an external clock, and the contents of the binary group
+        /// contain complex data formatted according to SMPTE 262M.
+        ///
+        /// - IEC 60461:2010 Section 7.4.5 - Page/line multiplex system and unspecified clock time
+        TimeUnspecifiedGroupPageLine = 0b101,
 
-    /// The time is referenced to an external clock, and the contents of the binary group
-    /// are unspecified.
-    ///
-    /// - IEC 60461:2010 Section 7.4.6 - Clock time specified and unspecified character set
-    TimeClockGroupUnspecified = 0b010,
+        /// The time is referenced to an external clock, and the contents of the binary group
+        /// are unspecified.
+        ///
+        /// - IEC 60461:2010 Section 7.4.6 - Clock time specified and unspecified character set
+        TimeClockGroupUnspecified = 0b010,
 
-    /// This combination is reserved for future use and should not be used.
-    ///
-    /// - IEC 60461:2010 Section 7.4.7 - Unassigned binary group usage and unassigned clock time
-    TimeUnassignedGroupReserved = 0b011,
+        /// This combination is reserved for future use and should not be used.
+        ///
+        /// - IEC 60461:2010 Section 7.4.7 - Unassigned binary group usage and unassigned clock time
+        TimeUnassignedGroupReserved = 0b011,
 
-    /// The time is referenced to an external clock, and the contents of the binary group
-    /// contain time zone information according to SMPTE 309M.
-    ///
-    /// - IEC 60461:2010 Section 7.4.8 - Date/time zone and clock time
-    TimeClockGroupDateTimeZone = 0b110,
+        /// The time is referenced to an external clock, and the contents of the binary group
+        /// contain time zone information according to SMPTE 309M.
+        ///
+        /// - IEC 60461:2010 Section 7.4.8 - Date/time zone and clock time
+        TimeClockGroupDateTimeZone = 0b110,
 
-    /// The time is referenced to an external clock, and the contents of the binary group
-    /// contain complex data formatted according to SMPTE 262M.
-    ///
-    /// - IEC 60461:2010 Section 7.4.9 - Specified clock time and page/line multiplex system
-    TimeClockGroupPageLine = 0b111,
+        /// The time is referenced to an external clock, and the contents of the binary group
+        /// contain complex data formatted according to SMPTE 262M.
+        ///
+        /// - IEC 60461:2010 Section 7.4.9 - Specified clock time and page/line multiplex system
+        TimeClockGroupPageLine = 0b111,
+    }
+
+    #[bitenum(u3, exhaustive = true)]
+    enum RawBinaryGroupFlag;
 }
 
-/// Indicates whethere there is a timecode discontinuity prior to where this recording was
-/// started.
-///
-/// A discontinuity means that the timecode did not continuously increase one frame at a time for
-/// all frames prior to this one.  For example, the timecode might change from `01:33:53;15` to
-/// `00:00:00;00` at some location in the videotape.  In that example, the `00:00:00;00` frame
-/// and all following frames would have a flag value of [`BlankFlag::Discontinuous`].
-///
-/// - IEC 61834-4:1998 Section 4.4 - Time Code (TITLE)
-#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[bitenum(u1, exhaustive = true)]
-pub enum BlankFlag {
-    /// A timecode discontinuity exists somewhere prior to the current tape position
-    Discontinuous = 0x0,
+super::util::required_enum! {
+    /// Indicates whethere there is a timecode discontinuity prior to where this recording was
+    /// started.
+    ///
+    /// A discontinuity means that the timecode did not continuously increase one frame at a time for
+    /// all frames prior to this one.  For example, the timecode might change from `01:33:53;15` to
+    /// `00:00:00;00` at some location in the videotape.  In that example, the `00:00:00;00` frame
+    /// and all following frames would have a flag value of [`BlankFlag::Discontinuous`].
+    ///
+    /// - IEC 61834-4:1998 Section 4.4 - Time Code (TITLE)
+    #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
+    pub enum BlankFlag {
+        /// A timecode discontinuity exists somewhere prior to the current tape position
+        Discontinuous = 0x0,
 
-    /// A timecode discontinuity does not exist somewhere prior to the current tape position
-    Continuous = 0x1,
+        /// A timecode discontinuity does not exist somewhere prior to the current tape position
+        Continuous = 0x1,
+    }
+
+    #[bitenum(u1, exhaustive = true)]
+    enum RawBlankFlag;
 }
 
 #[bitfield(u32)]
@@ -395,7 +411,7 @@ struct Raw525_60Timecode {
     #[bit(6, rw)]
     df: bool,
     #[bit(7, rw)]
-    cf: ColorFrame,
+    cf: RawColorFrame,
 
     // PC2
     #[bits(8..=11, rw)]
@@ -403,7 +419,7 @@ struct Raw525_60Timecode {
     #[bits(12..=14, rw)]
     second_tens: u3,
     #[bit(15, rw)]
-    pc: PolarityCorrection,
+    pc: RawPolarityCorrection,
 
     // PC3
     #[bits(16..=19, rw)]
@@ -418,7 +434,7 @@ struct Raw525_60Timecode {
     hour_tens: u2,
 
     #[bits([23, 30, 31], rw)]
-    bgf: BinaryGroupFlag,
+    bgf: RawBinaryGroupFlag,
 }
 
 #[bitfield(u32)]
@@ -431,7 +447,7 @@ struct Raw625_50Timecode {
     #[bit(6, rw)]
     df: bool,
     #[bit(7, rw)]
-    cf: ColorFrame,
+    cf: RawColorFrame,
 
     // PC2
     #[bits(8..=11, rw)]
@@ -451,10 +467,10 @@ struct Raw625_50Timecode {
     #[bits(28..=29, rw)]
     hour_tens: u2,
     #[bit(31, rw)]
-    pc: PolarityCorrection,
+    pc: RawPolarityCorrection,
 
     #[bits([15, 30, 23], rw)]
-    bgf: BinaryGroupFlag,
+    bgf: RawBinaryGroupFlag,
 }
 
 /// Title timecode, AAUX recording time, or VAUX recording time
@@ -570,9 +586,9 @@ impl super::PackData for Timecode<Option<TimeValueWithOptionalFrame>> {
                 None
             },
 
-            color_frame: raw.cf(),
-            polarity_correction: raw.pc(),
-            binary_group_flag: raw.bgf(),
+            color_frame: raw.cf().into(),
+            polarity_correction: raw.pc().into(),
+            binary_group_flag: raw.bgf().into(),
         })
     }
 }
@@ -608,15 +624,15 @@ impl super::ValidPackDataTrait<Timecode<Option<TimeValueWithOptionalFrame>>>
             .with_frame_units(self.time.and_then(|t| t.frame).map_or(u4::MAX, |f| u4::new(f % 10)))
             .with_frame_tens(self.time.and_then(|t| t.frame).map_or(u2::MAX, |f| u2::new(f / 10)))
             .with_df(self.time.map(|t| t.drop_frame).unwrap_or(true))
-            .with_cf(self.color_frame)
+            .with_cf(self.color_frame.into())
             .with_second_units(self.time.map_or(u4::MAX, |t| u4::new(t.second % 10)))
             .with_second_tens(self.time.map_or(u3::MAX, |t| u3::new(t.second / 10)))
-            .with_pc(self.polarity_correction)
+            .with_pc(self.polarity_correction.into())
             .with_minute_units(self.time.map_or(u4::MAX, |t| u4::new(t.minute % 10)))
             .with_minute_tens(self.time.map_or(u3::MAX, |t| u3::new(t.minute / 10)))
             .with_hour_units(self.time.map_or(u4::MAX, |t| u4::new(t.hour % 10)))
             .with_hour_tens(self.time.map_or(u2::MAX, |t| u2::new(t.hour / 10)))
-            .with_bgf(self.binary_group_flag)
+            .with_bgf(self.binary_group_flag.into())
             .build();
         match ctx.file_info.system() {
             System::Sys525_60 => raw.raw_value().to_le_bytes(),

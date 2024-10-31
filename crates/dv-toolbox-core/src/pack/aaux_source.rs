@@ -4,82 +4,102 @@ use garde::Validate;
 use serde::{Deserialize, Serialize};
 use snafu::{whatever, OptionExt};
 
-use super::SourceType;
+use super::RawSourceType;
 use crate::file::{System, ValidInfoMethods};
 
 #[cfg(test)]
 mod tests;
 
-/// Quantization format of audio samples.
-#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[bitenum(u3, exhaustive = true)]
-#[allow(missing_docs)]
-pub enum AudioQuantization {
-    /// 16-bit linear samples (standard PCM)
-    Linear16Bit = 0x0,
-
-    /// Special 12-bit non-linear samples
-    NonLinear12Bit = 0x1,
-
-    /// 20-bit linear samples
-    Linear20Bit = 0x2,
-
-    Reserved3 = 0x3,
-    Reserved4 = 0x4,
-    Reserved5 = 0x5,
-    Reserved6 = 0x6,
-    Reserved7 = 0x7,
-}
-
-/// Whether the audio clock was locked to the video clock.
-#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[bitenum(u1, exhaustive = true)]
-pub enum LockedMode {
-    /// The audio clock of the recording device was locked to the video clock.
-    ///
-    /// This value would typically be seen only in professional recording equipment.  It means
-    /// that the number of audio samples per frame will always be the same, and audio will not
-    /// become desynchronized from the video over time.
-    Locked = 0x0,
-
-    /// The audio clock of the recording device was _not_ locked to the video clock.
-    ///
-    /// This value is typical of consumer camcorders.  It means that the number of audio samples
-    /// per frame will drift.  To avoid audio/video desynchronization during post-processing, it
-    /// is recommended that you resample the audio in each video frame before using it.
-    Unlocked = 0x1,
-}
-
-/// Partially determines the channel layout.
-#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[bitenum(u1, exhaustive = true)]
-#[allow(missing_docs)]
-pub enum StereoMode {
-    MultiStereoAudio = 0x0,
-    LumpedAudio = 0x1,
-}
-
-/// Whether the audio in audio block channel CH1 (CH3) is related to audio in audio block
-/// channel CH2 (CH4).
-#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[bitenum(u1, exhaustive = true)]
-pub enum AudioBlockPairing {
-    /// The audio block channels are paired with each other.
-    Paired = 0x0,
-
-    /// The audio block channels are independent of each other.
-    Independent = 0x1,
-}
-
-/// Time constant of audio pre-emphasis.
-#[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-#[bitenum(u1, exhaustive = true)]
-pub enum EmphasisTimeConstant {
-    /// Audio pre-emphasis of 50/15 microseconds
-    Emphasis50_15 = 0x1,
-
+super::util::required_enum! {
+    /// Quantization format of audio samples.
+    #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
     #[allow(missing_docs)]
-    Reserved = 0x0,
+    pub enum AudioQuantization {
+        /// 16-bit linear samples (standard PCM)
+        Linear16Bit = 0x0,
+
+        /// Special 12-bit non-linear samples
+        NonLinear12Bit = 0x1,
+
+        /// 20-bit linear samples
+        Linear20Bit = 0x2,
+
+        Reserved3 = 0x3,
+        Reserved4 = 0x4,
+        Reserved5 = 0x5,
+        Reserved6 = 0x6,
+        Reserved7 = 0x7,
+    }
+
+    #[bitenum(u3, exhaustive = true)]
+    enum RawAudioQuantization;
+}
+
+super::util::required_enum! {
+    /// Whether the audio clock was locked to the video clock.
+    #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
+    pub enum LockedMode {
+        /// The audio clock of the recording device was locked to the video clock.
+        ///
+        /// This value would typically be seen only in professional recording equipment.  It means
+        /// that the number of audio samples per frame will always be the same, and audio will not
+        /// become desynchronized from the video over time.
+        Locked = 0x0,
+
+        /// The audio clock of the recording device was _not_ locked to the video clock.
+        ///
+        /// This value is typical of consumer camcorders.  It means that the number of audio samples
+        /// per frame will drift.  To avoid audio/video desynchronization during post-processing, it
+        /// is recommended that you resample the audio in each video frame before using it.
+        Unlocked = 0x1,
+    }
+
+    #[bitenum(u1, exhaustive = true)]
+    enum RawLockedMode;
+}
+
+super::util::required_enum! {
+    /// Partially determines the channel layout.
+    #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
+    #[allow(missing_docs)]
+    pub enum StereoMode {
+        MultiStereoAudio = 0x0,
+        LumpedAudio = 0x1,
+    }
+
+    #[bitenum(u1, exhaustive = true)]
+    enum RawStereoMode;
+}
+
+super::util::required_enum! {
+    /// Whether the audio in audio block channel CH1 (CH3) is related to audio in audio block
+    /// channel CH2 (CH4).
+    #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
+    pub enum AudioBlockPairing {
+        /// The audio block channels are paired with each other.
+        Paired = 0x0,
+
+        /// The audio block channels are independent of each other.
+        Independent = 0x1,
+    }
+
+    #[bitenum(u1, exhaustive = true)]
+    enum RawAudioBlockPairing;
+}
+
+super::util::required_enum! {
+    /// Time constant of audio pre-emphasis.
+    #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, Serialize, Deserialize)]
+    pub enum EmphasisTimeConstant {
+        /// Audio pre-emphasis of 50/15 microseconds
+        Emphasis50_15 = 0x1,
+
+        #[allow(missing_docs)]
+        Reserved = 0x0,
+    }
+
+    #[bitenum(u1, exhaustive = true)]
+    enum RawEmphasisTimeConstant;
 }
 
 /// Contains information about the audio stream.
@@ -274,21 +294,21 @@ struct RawAAUXSource {
     #[bits([6, 23],rw)] // also part of PC3
     reserved: u2,
     #[bit(7, rw)]
-    lf: LockedMode,
+    lf: RawLockedMode,
 
     // PC2
     #[bits(8..=11, rw)]
     audio_mode: u4,
     #[bit(12, rw)]
-    pa: AudioBlockPairing,
+    pa: RawAudioBlockPairing,
     #[bits(13..=14, rw)]
     chn: u2,
     #[bit(15, rw)]
-    sm: StereoMode,
+    sm: RawStereoMode,
 
     // PC3
     #[bits(16..=20, rw)]
-    stype: SourceType,
+    stype: RawSourceType,
     #[bit(21, rw)]
     field_count: u1,
     #[bit(22, rw)]
@@ -296,11 +316,11 @@ struct RawAAUXSource {
 
     // PC4
     #[bits(24..=26, rw)]
-    qu: AudioQuantization,
+    qu: RawAudioQuantization,
     #[bits(27..=29, rw)]
     smp: u3,
     #[bit(30, rw)]
-    tc: EmphasisTimeConstant,
+    tc: RawEmphasisTimeConstant,
     #[bit(31, rw)]
     ef: bool,
 }
@@ -322,10 +342,10 @@ impl super::PackData for AAUXSource {
             .whatever_context("audio sample rate is unsupported")?;
         Ok(Self {
             audio_sample_rate,
-            quantization: raw.qu(),
+            quantization: raw.qu().into(),
             audio_frame_size: min + u16::from(raw.af_size()),
-            locked_mode: raw.lf(),
-            stereo_mode: raw.sm(),
+            locked_mode: raw.lf().into(),
+            stereo_mode: raw.sm().into(),
             audio_block_channel_count: match raw.chn().value() {
                 0x0 => 1,
                 0x1 => 2,
@@ -335,16 +355,16 @@ impl super::PackData for AAUXSource {
                 ),
             },
             audio_mode: raw.audio_mode(),
-            audio_block_pairing: raw.pa(),
+            audio_block_pairing: raw.pa().into(),
             multi_language: !raw.ml(),
-            source_type: raw.stype(),
+            source_type: raw.stype().into(),
             field_count: match raw.field_count().value() {
                 0x0 => 60,
                 0x1 => 50,
                 _ => panic!("code was supposed to be unreachable"),
             },
             emphasis_on: !raw.ef(),
-            emphasis_time_constant: raw.tc(),
+            emphasis_time_constant: raw.tc().into(),
             reserved: raw.reserved(),
         })
     }
@@ -358,30 +378,30 @@ impl super::ValidPackDataTrait<AAUXSource> for super::ValidPack<AAUXSource> {
         RawAAUXSource::builder()
             .with_af_size(u6::new(u8::try_from(self.audio_frame_size - min).unwrap()))
             .with_reserved(self.reserved)
-            .with_lf(self.locked_mode)
+            .with_lf(self.locked_mode.into())
             .with_audio_mode(self.audio_mode)
-            .with_pa(self.audio_block_pairing)
+            .with_pa(self.audio_block_pairing.into())
             .with_chn(match self.audio_block_channel_count {
                 1 => u2::new(0x0),
                 2 => u2::new(0x1),
                 _ => panic!("code was suppposed to be unreachable in validated structure"),
             })
-            .with_sm(self.stereo_mode)
-            .with_stype(self.source_type)
+            .with_sm(self.stereo_mode.into())
+            .with_stype(self.source_type.into())
             .with_field_count(match self.field_count {
                 60 => u1::new(0x0),
                 50 => u1::new(0x1),
                 _ => panic!("code was suppposed to be unreachable in validated structure"),
             })
             .with_ml(!self.multi_language)
-            .with_qu(self.quantization)
+            .with_qu(self.quantization.into())
             .with_smp(match self.audio_sample_rate {
                 48_000 => u3::new(0x0),
                 44_100 => u3::new(0x1),
                 32_000 => u3::new(0x2),
                 _ => panic!("code was suppposed to be unreachable in validated structure"),
             })
-            .with_tc(self.emphasis_time_constant)
+            .with_tc(self.emphasis_time_constant.into())
             .with_ef(!self.emphasis_on)
             .build()
             .raw_value()
