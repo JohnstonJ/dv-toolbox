@@ -9,8 +9,6 @@ mod tests;
 /// Convert binary-coded decimal value into a normal number.
 ///
 /// If every bit in the digits is set, then the number is assumed to be absent (None).
-// TODO: remove this annotation after using the function.
-#[allow(dead_code)]
 pub(crate) fn from_bcd_hundreds<THundreds>(
     hundreds: THundreds,
     tens: u4,

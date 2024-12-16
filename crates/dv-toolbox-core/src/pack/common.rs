@@ -3,6 +3,8 @@
 use bitbybit::bitenum;
 use serde::{Deserialize, Serialize};
 
+use crate::file::{System, ValidInfoMethods};
+
 super::util::required_enum! {
     /// Determines which video system type is in use.
     ///
@@ -169,5 +171,22 @@ super::util::optional_enum! {
     #[bitenum(u2, exhaustive = true)]
     pub(crate) enum RawCompressionCount {
         NoInfo = 0b11,
+    }
+}
+
+/// Validate that the field count is 50 or 60, and matches with the system.
+pub(crate) fn check_field_count(field_count: &u8, ctx: &super::PackContext) -> garde::Result {
+    let system = ctx.file_info.system();
+    let expected_field_count = match system {
+        System::Sys525_60 => 60,
+        System::Sys625_50 => 50,
+    };
+    if *field_count != expected_field_count {
+        Err(garde::Error::new(format!(
+            "field count of {field_count} does not match the expected value of \
+            {expected_field_count} for system {system}"
+        )))
+    } else {
+        Ok(())
     }
 }

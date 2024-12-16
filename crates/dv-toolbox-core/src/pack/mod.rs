@@ -22,6 +22,7 @@ use serde::{de::DeserializeOwned, Serialize};
 use snafu::prelude::*;
 pub use time::*;
 pub use types::*;
+pub use vaux_source::*;
 
 use crate::file;
 
@@ -33,6 +34,7 @@ mod date;
 mod time;
 mod types;
 mod util;
+mod vaux_source;
 
 #[cfg(test)]
 mod testutil;

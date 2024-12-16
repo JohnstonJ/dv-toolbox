@@ -190,6 +190,11 @@ type_macro! {
     /// - IEC 61834-4:1998 Section 8.5 - Binary Group (AAUX)
     AAUXBinaryGroup(0x54, super::BinaryGroup),
 
+    /// Contains information about the video stream.
+    ///
+    /// - IEC 61834-4:1998 Section 9.1 - Source (VAUX)
+    /// - SMPTE 306M-2002 Section 8.9.1 - VAUX source pack (VS)
+    VAUXSource(0x60, super::VAUXSource),
     /// The date when video data is recorded.
     ///
     /// - IEC 61834-4:1998 Section 9.3 - Rec Date (VAUX)

@@ -192,7 +192,7 @@ pub struct AAUXSource {
     /// The number of fields per frame.
     ///
     /// Valid values are 50 (PAL/SECAM) and 60 (NTSC).
-    #[garde(custom(check_field_count))]
+    #[garde(custom(super::check_field_count))]
     pub field_count: u8,
 
     /// Whether audio pre-emphasis is enabled.
@@ -266,23 +266,6 @@ fn check_audio_frame_size(
         } else {
             Ok(())
         }
-    }
-}
-
-/// Validate that the field count is 50 or 60, and matches with the system.
-fn check_field_count(field_count: &u8, ctx: &super::PackContext) -> garde::Result {
-    let system = ctx.file_info.system();
-    let expected_field_count = match system {
-        System::Sys525_60 => 60,
-        System::Sys625_50 => 50,
-    };
-    if *field_count != expected_field_count {
-        Err(garde::Error::new(format!(
-            "field count of {field_count} does not match the expected value of \
-            {expected_field_count} for system {system}"
-        )))
-    } else {
-        Ok(())
     }
 }
 
