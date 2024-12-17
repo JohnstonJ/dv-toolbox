@@ -23,6 +23,7 @@ use snafu::prelude::*;
 pub use time::*;
 pub use types::*;
 pub use vaux_source::*;
+pub use vaux_source_control::*;
 
 use crate::file;
 
@@ -35,6 +36,7 @@ mod time;
 mod types;
 mod util;
 mod vaux_source;
+mod vaux_source_control;
 
 #[cfg(test)]
 mod testutil;

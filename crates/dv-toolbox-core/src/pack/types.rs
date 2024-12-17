@@ -195,6 +195,11 @@ type_macro! {
     /// - IEC 61834-4:1998 Section 9.1 - Source (VAUX)
     /// - SMPTE 306M-2002 Section 8.9.1 - VAUX source pack (VS)
     VAUXSource(0x60, super::VAUXSource),
+    /// Contains some metadata about the video stream.
+    ///
+    /// - IEC 61834-4:1998 Section 9.2 - Source Control (VAUX)
+    /// - SMPTE 306M-2002 Section 8.9.2 - VAUX source control pack (VSC)
+    VAUXSourceControl(0x61, super::VAUXSourceControl),
     /// The date when video data is recorded.
     ///
     /// - IEC 61834-4:1998 Section 9.3 - Rec Date (VAUX)

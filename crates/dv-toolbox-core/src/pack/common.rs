@@ -1,5 +1,6 @@
 //! Common data types shared between multiple packs.
 
+use arbitrary_int::{u7, Number};
 use bitbybit::bitenum;
 use serde::{Deserialize, Serialize};
 
@@ -186,6 +187,20 @@ pub(crate) fn check_field_count(field_count: &u8, ctx: &super::PackContext) -> g
             "field count of {field_count} does not match the expected value of \
             {expected_field_count} for system {system}"
         )))
+    } else {
+        Ok(())
+    }
+}
+
+/// Ensure that no information genre category values are specified as None, instead of Some(0x7F).
+pub(crate) fn check_genre_category(
+    genre_category: &Option<u7>,
+    _ctx: &super::PackContext,
+) -> garde::Result {
+    if *genre_category == Some(u7::MAX) {
+        Err(garde::Error::new(
+            "instead of specifying Some(0x7F), use None to indicate no information",
+        ))
     } else {
         Ok(())
     }

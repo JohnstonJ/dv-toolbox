@@ -161,7 +161,7 @@ pub struct AAUXSourceControl {
     ///
     /// The value corresponds to a massive enumeration of dozens of TV genres.  See
     /// IEC 61834-4:1998 Section 3.3 - Timer Activation Date (CONTROL) for the full list.
-    #[garde(custom(check_genre_category))]
+    #[garde(custom(super::check_genre_category))]
     pub genre_category: Option<u7>,
 
     // Playback information
@@ -192,16 +192,6 @@ pub struct AAUXSourceControl {
     /// Reserved bits; should normally be set to 0x1.
     #[garde(skip)]
     pub reserved: u1,
-}
-
-fn check_genre_category(genre_category: &Option<u7>, _ctx: &super::PackContext) -> garde::Result {
-    if *genre_category == Some(u7::MAX) {
-        Err(garde::Error::new(
-            "instead of specifying Some(0x7F), use None to indicate no information",
-        ))
-    } else {
-        Ok(())
-    }
 }
 
 static PLAYBACK_SPEED_BITS_TO_RATIO: LazyLock<[Option<Ratio<u8>>; 128]> = LazyLock::new(|| {
