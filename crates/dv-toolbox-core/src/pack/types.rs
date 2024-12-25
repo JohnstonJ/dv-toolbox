@@ -213,6 +213,11 @@ type_macro! {
     /// - IEC 61834-4:1998 Section 9.5 - Binary Group (VAUX)
     VAUXBinaryGroup(0x64, super::BinaryGroup),
 
+    /// Provides some of the settings used by a consumer camera to record the video.
+    ///
+    /// - IEC 61834-4:1998 Section 10.1 - Consumer Camera 1 (CAMERA)
+    CameraConsumer1(0x70, super::CameraConsumer1),
+
     /// No information
     ///
     /// There is no pack in this position, or it dropped out.

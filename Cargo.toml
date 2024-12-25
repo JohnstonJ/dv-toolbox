@@ -30,6 +30,8 @@ regex = "1.11.1"
 # The version for rsmpeg is closely tied to the FFmpeg version that we set in vcpkg.json.
 rsmpeg = "0.15.1"
 rstest = "0.23.0"
+rust_decimal = "1.36.0"
+rust_decimal_macros = "1.36.0"
 # Temporarily in place while we are patching rusty_ffmpeg
 rusty_ffmpeg = { version = "0.16.1", features = ["ffmpeg7"] }
 serde = "1.0.210"
